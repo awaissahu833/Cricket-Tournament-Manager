@@ -1,0 +1,82 @@
+﻿-- Create database if not exists and create simple tables for CricketTournamentManager
+IF DB_ID('CricketDB') IS NULL
+BEGIN
+	CREATE DATABASE [CricketDB];
+END
+GO
+
+USE [CricketDB];
+GO
+
+-- Teams table
+IF OBJECT_ID('dbo.Teams','U') IS NULL
+BEGIN
+	CREATE TABLE dbo.Teams (
+		TeamId   NVARCHAR(10)  NOT NULL PRIMARY KEY,
+		Name     NVARCHAR(200) NOT NULL,
+		Country  NVARCHAR(100) NULL,
+		Coach    NVARCHAR(100) NULL,
+		Captain  NVARCHAR(100) NULL
+	);
+END
+GO
+
+-- Players table
+IF OBJECT_ID('dbo.Players','U') IS NULL
+BEGIN
+	CREATE TABLE dbo.Players (
+		PlayerId    NVARCHAR(10)  NOT NULL PRIMARY KEY,
+		Name        NVARCHAR(200) NOT NULL,
+		Nationality NVARCHAR(100) NULL,
+		Role        NVARCHAR(50)  NOT NULL,
+		TeamId      NVARCHAR(10)  NULL,
+		CONSTRAINT FK_Players_Teams FOREIGN KEY (TeamId) REFERENCES dbo.Teams(TeamId) ON DELETE SET NULL
+	);
+END
+GO
+
+-- Matches table
+IF OBJECT_ID('dbo.Matches','U') IS NULL
+BEGIN
+	CREATE TABLE dbo.Matches (
+		MatchId   NVARCHAR(10)  NOT NULL PRIMARY KEY,
+		Team1Id   NVARCHAR(10)  NOT NULL,
+		Team2Id   NVARCHAR(10)  NOT NULL,
+		MatchDate DATETIME2      NOT NULL,
+		Status    NVARCHAR(50)  NOT NULL,
+		Result    NVARCHAR(500) NULL,
+		CONSTRAINT FK_Matches_Team1 FOREIGN KEY (Team1Id) REFERENCES dbo.Teams(TeamId),
+		CONSTRAINT FK_Matches_Team2 FOREIGN KEY (Team2Id) REFERENCES dbo.Teams(TeamId)
+	);
+END
+GO
+
+-- Sample seed data (optional)
+SET NOCOUNT ON;
+
+-- Insert teams
+IF NOT EXISTS (SELECT 1 FROM dbo.Teams)
+BEGIN
+	INSERT INTO dbo.Teams (TeamId, Name, Country, Coach, Captain) VALUES
+	('T001','Mumbai Challengers','India','A. Coach','R. Captain'),
+	('T002','Delhi Strikers','India','B. Coach','S. Captain');
+END
+
+-- Insert players
+IF NOT EXISTS (SELECT 1 FROM dbo.Players)
+BEGIN
+	INSERT INTO dbo.Players (PlayerId, Name, Nationality, Role, TeamId) VALUES
+	('P001','Sachin Example','India','Batsman','T001'),
+	('P002','Virat Example','India','Batsman','T002'),
+	('P003','James Bowler','Australia','Bowler',NULL);
+END
+
+-- Insert matches
+IF NOT EXISTS (SELECT 1 FROM dbo.Matches)
+BEGIN
+	INSERT INTO dbo.Matches (MatchId, Team1Id, Team2Id, MatchDate, Status, Result) VALUES
+	('M001','T001','T002', SYSDATETIME(), 'Scheduled', 'Pending');
+END
+
+SET NOCOUNT OFF;
+GO

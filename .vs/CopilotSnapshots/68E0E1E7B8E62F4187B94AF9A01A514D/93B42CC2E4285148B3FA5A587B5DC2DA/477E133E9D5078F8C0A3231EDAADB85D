@@ -1,0 +1,257 @@
+﻿namespace App.WindowsApp.Views
+{
+    partial class DashboardView
+    {
+        private System.ComponentModel.IContainer components = null;
+
+        private Panel pnlTeams;
+        private Panel pnlMatches;
+        private Panel pnlPlayers;
+        private Panel pnlPrizePool;
+
+        private Label lblTeamsTitle;
+        private Label lblMatchesTitle;
+        private Label lblPlayersTitle;
+        private Label lblPrizeTitle;
+
+        private Label lblTeamsCount;
+        private Label lblMatchesCount;
+        private Label lblPlayersCount;
+        private Label lblPrizeAmount;
+
+        private GroupBox grpBatters;
+        private GroupBox grpBowlers;
+
+        private DataGridView dgvTopBatters;
+        private DataGridView dgvTopBowlers;
+
+        private System.Windows.Forms.DataVisualization.Charting.Chart chartRuns;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chartWickets;
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+                components.Dispose();
+
+            base.Dispose(disposing);
+        }
+
+        #region Component Designer generated code
+
+        private void InitializeComponent()
+        {
+            components = new System.ComponentModel.Container();
+
+            pnlTeams = new Panel();
+            pnlMatches = new Panel();
+            pnlPlayers = new Panel();
+            pnlPrizePool = new Panel();
+
+            lblTeamsTitle = new Label();
+            lblMatchesTitle = new Label();
+            lblPlayersTitle = new Label();
+            lblPrizeTitle = new Label();
+
+            lblTeamsCount = new Label();
+            lblMatchesCount = new Label();
+            lblPlayersCount = new Label();
+            lblPrizeAmount = new Label();
+
+            grpBatters = new GroupBox();
+            grpBowlers = new GroupBox();
+
+            dgvTopBatters = new DataGridView();
+            dgvTopBowlers = new DataGridView();
+
+            chartRuns = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            chartWickets = new System.Windows.Forms.DataVisualization.Charting.Chart();
+
+            ((System.ComponentModel.ISupportInitialize)dgvTopBatters).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)dgvTopBowlers).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)chartRuns).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)chartWickets).BeginInit();
+
+            SuspendLayout();
+
+            //
+            // DashboardView
+            //
+            Name = "DashboardView";
+            Size = new Size(1200, 750);
+
+            //
+            // pnlTeams
+            //
+            pnlTeams.BorderStyle = BorderStyle.FixedSingle;
+            pnlTeams.Location = new Point(20, 20);
+            pnlTeams.Size = new Size(250, 100);
+
+            //
+            // lblTeamsTitle
+            //
+            lblTeamsTitle.Text = "Total Teams";
+            lblTeamsTitle.Location = new Point(10, 10);
+            lblTeamsTitle.AutoSize = true;
+
+            //
+            // lblTeamsCount
+            //
+            lblTeamsCount.Text = "0";
+            lblTeamsCount.Font = new Font("Segoe UI", 20F, FontStyle.Bold);
+            lblTeamsCount.Location = new Point(10, 40);
+            lblTeamsCount.AutoSize = true;
+
+            pnlTeams.Controls.Add(lblTeamsTitle);
+            pnlTeams.Controls.Add(lblTeamsCount);
+
+            //
+            // pnlMatches
+            //
+            pnlMatches.BorderStyle = BorderStyle.FixedSingle;
+            pnlMatches.Location = new Point(290, 20);
+            pnlMatches.Size = new Size(250, 100);
+
+            lblMatchesTitle.Text = "Total Matches";
+            lblMatchesTitle.Location = new Point(10, 10);
+
+            lblMatchesCount.Text = "0";
+            lblMatchesCount.Font = new Font("Segoe UI", 20F, FontStyle.Bold);
+            lblMatchesCount.Location = new Point(10, 40);
+
+            pnlMatches.Controls.Add(lblMatchesTitle);
+            pnlMatches.Controls.Add(lblMatchesCount);
+
+            //
+            // pnlPlayers
+            //
+            pnlPlayers.BorderStyle = BorderStyle.FixedSingle;
+            pnlPlayers.Location = new Point(560, 20);
+            pnlPlayers.Size = new Size(250, 100);
+
+            lblPlayersTitle.Text = "Total Players";
+            lblPlayersTitle.Location = new Point(10, 10);
+
+            lblPlayersCount.Text = "0";
+            lblPlayersCount.Font = new Font("Segoe UI", 20F, FontStyle.Bold);
+            lblPlayersCount.Location = new Point(10, 40);
+
+            pnlPlayers.Controls.Add(lblPlayersTitle);
+            pnlPlayers.Controls.Add(lblPlayersCount);
+
+            //
+            // pnlPrizePool
+            //
+            pnlPrizePool.BorderStyle = BorderStyle.FixedSingle;
+            pnlPrizePool.Location = new Point(830, 20);
+            pnlPrizePool.Size = new Size(320, 100);
+
+            lblPrizeTitle.Text = "Total Prize Pool";
+            lblPrizeTitle.Location = new Point(10, 10);
+
+            lblPrizeAmount.Text = "Rs. 0";
+            lblPrizeAmount.Font = new Font("Segoe UI", 20F, FontStyle.Bold);
+            lblPrizeAmount.Location = new Point(10, 40);
+
+            pnlPrizePool.Controls.Add(lblPrizeTitle);
+            pnlPrizePool.Controls.Add(lblPrizeAmount);
+
+            //
+            // grpBatters
+            //
+            grpBatters.Text = "Top 5 Batters";
+            grpBatters.Location = new Point(20, 140);
+            grpBatters.Size = new Size(560, 250);
+
+            //
+            // dgvTopBatters
+            //
+            dgvTopBatters.Dock = DockStyle.Fill;
+            dgvTopBatters.AllowUserToAddRows = false;
+            dgvTopBatters.ReadOnly = true;
+
+            dgvTopBatters.Columns.Add("PlayerID", "Player ID");
+            dgvTopBatters.Columns.Add("PlayerName", "Name");
+            dgvTopBatters.Columns.Add("Runs", "Runs");
+            dgvTopBatters.Columns.Add("Fours", "Fours");
+            dgvTopBatters.Columns.Add("Sixes", "Sixes");
+
+            grpBatters.Controls.Add(dgvTopBatters);
+
+            //
+            // grpBowlers
+            //
+            grpBowlers.Text = "Top 5 Bowlers";
+            grpBowlers.Location = new Point(600, 140);
+            grpBowlers.Size = new Size(550, 250);
+
+            //
+            // dgvTopBowlers
+            //
+            dgvTopBowlers.Dock = DockStyle.Fill;
+            dgvTopBowlers.AllowUserToAddRows = false;
+            dgvTopBowlers.ReadOnly = true;
+
+            dgvTopBowlers.Columns.Add("PlayerID", "Player ID");
+            dgvTopBowlers.Columns.Add("PlayerName", "Name");
+            dgvTopBowlers.Columns.Add("Wickets", "Wickets");
+            dgvTopBowlers.Columns.Add("Overs", "Overs");
+
+            grpBowlers.Controls.Add(dgvTopBowlers);
+
+            //
+            // chartRuns
+            //
+            chartRuns.Location = new Point(20, 420);
+            chartRuns.Size = new Size(560, 280);
+
+            chartRuns.ChartAreas.Add(
+                new System.Windows.Forms.DataVisualization.Charting.ChartArea("RunsArea"));
+
+            chartRuns.Series.Add(
+                new System.Windows.Forms.DataVisualization.Charting.Series("Runs")
+                {
+                    ChartType =
+                    System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Column
+                });
+
+            //
+            // chartWickets
+            //
+            chartWickets.Location = new Point(600, 420);
+            chartWickets.Size = new Size(550, 280);
+
+            chartWickets.ChartAreas.Add(
+                new System.Windows.Forms.DataVisualization.Charting.ChartArea("WicketArea"));
+
+            chartWickets.Series.Add(
+                new System.Windows.Forms.DataVisualization.Charting.Series("Wickets")
+                {
+                    ChartType =
+                    System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Pie
+                });
+
+            //
+            // Controls
+            //
+            Controls.Add(pnlTeams);
+            Controls.Add(pnlMatches);
+            Controls.Add(pnlPlayers);
+            Controls.Add(pnlPrizePool);
+
+            Controls.Add(grpBatters);
+            Controls.Add(grpBowlers);
+
+            Controls.Add(chartRuns);
+            Controls.Add(chartWickets);
+
+            ((System.ComponentModel.ISupportInitialize)dgvTopBatters).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dgvTopBowlers).EndInit();
+            ((System.ComponentModel.ISupportInitialize)chartRuns).EndInit();
+            ((System.ComponentModel.ISupportInitialize)chartWickets).EndInit();
+
+            ResumeLayout(false);
+        }
+
+        #endregion
+    }
+}

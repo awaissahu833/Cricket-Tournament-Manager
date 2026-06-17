@@ -1,0 +1,177 @@
+﻿namespace App.WindowsApp.Forms
+{
+    partial class MatchForm
+    {
+        private System.ComponentModel.IContainer components = null;
+
+        private Label lblTitle;
+
+        private Label lblMatchId;
+        private Label lblTeamA;
+        private Label lblTeamB;
+        private Label lblStatus;
+
+        private TextBox txtMatchId;
+
+        private ComboBox cmbTeamA;
+        private ComboBox cmbTeamB;
+        private ComboBox cmbStatus;
+
+        private Button btnSave;
+        private Button btnCancel;
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+                components.Dispose();
+
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        private void InitializeComponent()
+        {
+            lblTitle = new Label();
+            lblMatchId = new Label();
+            lblTeamA = new Label();
+            lblTeamB = new Label();
+            lblStatus = new Label();
+            txtMatchId = new TextBox();
+            cmbTeamA = new ComboBox();
+            cmbTeamB = new ComboBox();
+            cmbStatus = new ComboBox();
+            btnSave = new Button();
+            btnCancel = new Button();
+            SuspendLayout();
+            // 
+            // lblTitle
+            // 
+            lblTitle.AutoSize = true;
+            lblTitle.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+            lblTitle.Location = new Point(23, 20);
+            lblTitle.Name = "lblTitle";
+            lblTitle.Size = new Size(194, 32);
+            lblTitle.TabIndex = 0;
+            lblTitle.Text = "Schedule Match";
+            // 
+            // lblMatchId
+            // 
+            lblMatchId.AutoSize = true;
+            lblMatchId.Location = new Point(23, 93);
+            lblMatchId.Name = "lblMatchId";
+            lblMatchId.Size = new Size(69, 20);
+            lblMatchId.TabIndex = 1;
+            lblMatchId.Text = "Match ID";
+            // 
+            // lblTeamA
+            // 
+            lblTeamA.AutoSize = true;
+            lblTeamA.Location = new Point(23, 140);
+            lblTeamA.Name = "lblTeamA";
+            lblTeamA.Size = new Size(59, 20);
+            lblTeamA.TabIndex = 3;
+            lblTeamA.Text = "Team A";
+            // 
+            // lblTeamB
+            // 
+            lblTeamB.AutoSize = true;
+            lblTeamB.Location = new Point(23, 187);
+            lblTeamB.Name = "lblTeamB";
+            lblTeamB.Size = new Size(58, 20);
+            lblTeamB.TabIndex = 5;
+            lblTeamB.Text = "Team B";
+            // 
+            // lblStatus
+            // 
+            lblStatus.AutoSize = true;
+            lblStatus.Location = new Point(23, 234);
+            lblStatus.Name = "lblStatus";
+            lblStatus.Size = new Size(48, 20);
+            lblStatus.TabIndex = 7;
+            lblStatus.Text = "Status";
+            // 
+            // txtMatchId
+            // 
+            txtMatchId.Location = new Point(183, 89);
+            txtMatchId.Margin = new Padding(3, 4, 3, 4);
+            txtMatchId.Name = "txtMatchId";
+            txtMatchId.Size = new Size(274, 27);
+            txtMatchId.TabIndex = 2;
+            // 
+            // cmbTeamA
+            // 
+            cmbTeamA.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbTeamA.Location = new Point(183, 136);
+            cmbTeamA.Margin = new Padding(3, 4, 3, 4);
+            cmbTeamA.Name = "cmbTeamA";
+            cmbTeamA.Size = new Size(274, 28);
+            cmbTeamA.TabIndex = 4;
+            // 
+            // cmbTeamB
+            // 
+            cmbTeamB.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbTeamB.Location = new Point(183, 183);
+            cmbTeamB.Margin = new Padding(3, 4, 3, 4);
+            cmbTeamB.Name = "cmbTeamB";
+            cmbTeamB.Size = new Size(274, 28);
+            cmbTeamB.TabIndex = 6;
+            // 
+            // cmbStatus
+            // 
+            cmbStatus.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbStatus.Location = new Point(183, 230);
+            cmbStatus.Margin = new Padding(3, 4, 3, 4);
+            cmbStatus.Name = "cmbStatus";
+            cmbStatus.Size = new Size(274, 28);
+            cmbStatus.TabIndex = 8;
+            // 
+            // btnSave
+            // 
+            btnSave.Location = new Point(183, 307);
+            btnSave.Margin = new Padding(3, 4, 3, 4);
+            btnSave.Name = "btnSave";
+            btnSave.Size = new Size(126, 47);
+            btnSave.TabIndex = 11;
+            btnSave.Text = "Save";
+            btnSave.UseVisualStyleBackColor = true;
+            // 
+            // btnCancel
+            // 
+            btnCancel.Location = new Point(331, 307);
+            btnCancel.Margin = new Padding(3, 4, 3, 4);
+            btnCancel.Name = "btnCancel";
+            btnCancel.Size = new Size(126, 47);
+            btnCancel.TabIndex = 12;
+            btnCancel.Text = "Cancel";
+            btnCancel.UseVisualStyleBackColor = true;
+            // 
+            // MatchForm
+            // 
+            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(514, 427);
+            Controls.Add(lblTitle);
+            Controls.Add(lblMatchId);
+            Controls.Add(txtMatchId);
+            Controls.Add(lblTeamA);
+            Controls.Add(cmbTeamA);
+            Controls.Add(lblTeamB);
+            Controls.Add(lblStatus);
+            Controls.Add(cmbTeamB);
+            Controls.Add(cmbStatus);
+            Controls.Add(btnSave);
+            Controls.Add(btnCancel);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            Margin = new Padding(3, 4, 3, 4);
+            MaximizeBox = false;
+            Name = "MatchForm";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "Schedule Match";
+            ResumeLayout(false);
+            PerformLayout();
+        }
+
+        #endregion
+    }
+}

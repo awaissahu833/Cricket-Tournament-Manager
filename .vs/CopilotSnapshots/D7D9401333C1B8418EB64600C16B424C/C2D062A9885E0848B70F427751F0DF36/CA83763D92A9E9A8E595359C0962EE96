@@ -1,0 +1,18 @@
+﻿using App.Core.Models;
+using App.Core.Utilities;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace App.Core.Contracts
+{
+    public interface IProductService
+    {
+        Product Add(Product product);
+        List<Product> GetAll();
+        Task<List<Product>> SearchAsync(string text, ProductCategoryEnum? category, ProductStatusEnum? status);
+        Product GetById(string id);
+        List<Product> Search(string text, ProductCategoryEnum? category, ProductStatusEnum? status);
+        bool Update(Product product);
+        bool Delete(string id);
+    }
+}

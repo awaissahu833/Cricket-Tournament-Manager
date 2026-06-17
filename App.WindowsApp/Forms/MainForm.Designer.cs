@@ -1,0 +1,212 @@
+﻿namespace App.WindowsApp.Forms
+{
+    partial class MainForm
+    {
+        private System.ComponentModel.IContainer components = null;
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        private void InitializeComponent()
+        {
+            statusStrip1 = new StatusStrip();
+            toolStripStatusLabel1 = new ToolStripStatusLabel();
+            flowLayoutPanel1 = new FlowLayoutPanel();
+            button1 = new Button();
+            panelSidebar = new Panel();
+            btnPerformances = new Button();
+            btnMatches = new Button();
+            btnTeams = new Button();
+            btnDashboard = new Button();
+            panelContent = new Panel();
+            statusStrip1.SuspendLayout();
+            flowLayoutPanel1.SuspendLayout();
+            panelSidebar.SuspendLayout();
+            SuspendLayout();
+            // 
+            // statusStrip1
+            // 
+            statusStrip1.BackColor = SystemColors.ControlDarkDark;
+            statusStrip1.ImageScalingSize = new Size(20, 20);
+            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1 });
+            statusStrip1.Location = new Point(0, 722);
+            statusStrip1.Name = "statusStrip1";
+            statusStrip1.ShowItemToolTips = true;
+            statusStrip1.Size = new Size(1143, 26);
+            statusStrip1.TabIndex = 2;
+            statusStrip1.Text = "Ready";
+            // 
+            // toolStripStatusLabel1
+            // 
+            toolStripStatusLabel1.ForeColor = Color.White;
+            toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            toolStripStatusLabel1.Size = new Size(59, 20);
+            toolStripStatusLabel1.Text = "Ready...";
+            // 
+            // flowLayoutPanel1
+            // 
+            flowLayoutPanel1.BackColor = Color.White;
+            flowLayoutPanel1.Controls.Add(button1);
+            flowLayoutPanel1.Dock = DockStyle.Top;
+            flowLayoutPanel1.Location = new Point(0, 0);
+            flowLayoutPanel1.Name = "flowLayoutPanel1";
+            flowLayoutPanel1.Padding = new Padding(20, 20, 0, 0);
+            flowLayoutPanel1.Size = new Size(1143, 92);
+            flowLayoutPanel1.TabIndex = 3;
+            // 
+            // button1
+            // 
+            button1.AutoSize = true;
+            button1.FlatAppearance.BorderSize = 0;
+            button1.FlatStyle = FlatStyle.Flat;
+            button1.Font = new Font("Segoe UI", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            button1.Image = Properties.Resources.cricket;
+            button1.Location = new Point(23, 23);
+            button1.Name = "button1";
+            button1.Size = new Size(392, 54);
+            button1.TabIndex = 0;
+            button1.Text = "Cricket_Tournament_Manager";
+            button1.TextImageRelation = TextImageRelation.ImageBeforeText;
+            button1.UseVisualStyleBackColor = true;
+            // 
+            // panelSidebar
+            // 
+            panelSidebar.BackColor = Color.White;
+            panelSidebar.Controls.Add(btnPerformances);
+            panelSidebar.Controls.Add(btnMatches);
+            panelSidebar.Controls.Add(btnTeams);
+            panelSidebar.Controls.Add(btnDashboard);
+            panelSidebar.Dock = DockStyle.Left;
+            panelSidebar.ForeColor = SystemColors.ActiveCaptionText;
+            panelSidebar.Location = new Point(0, 92);
+            panelSidebar.Margin = new Padding(3, 4, 3, 4);
+            panelSidebar.Name = "panelSidebar";
+            panelSidebar.Padding = new Padding(0, 100, 0, 0);
+            panelSidebar.Size = new Size(251, 630);
+            panelSidebar.TabIndex = 4;
+            // 
+            // btnPerformances
+            // 
+            btnPerformances.Dock = DockStyle.Top;
+            btnPerformances.FlatAppearance.BorderSize = 0;
+            btnPerformances.FlatStyle = FlatStyle.Flat;
+            btnPerformances.ForeColor = Color.Black;
+            btnPerformances.Image = Properties.Resources.graph__1_;
+            btnPerformances.ImageAlign = ContentAlignment.MiddleLeft;
+            btnPerformances.Location = new Point(0, 340);
+            btnPerformances.Margin = new Padding(3, 4, 3, 4);
+            btnPerformances.Name = "btnPerformances";
+            btnPerformances.Size = new Size(251, 80);
+            btnPerformances.TabIndex = 0;
+            btnPerformances.Text = "PERFORMANCES";
+            btnPerformances.TextImageRelation = TextImageRelation.ImageBeforeText;
+            btnPerformances.UseVisualStyleBackColor = true;
+            // 
+            // btnMatches
+            // 
+            btnMatches.Dock = DockStyle.Top;
+            btnMatches.FlatAppearance.BorderSize = 0;
+            btnMatches.FlatStyle = FlatStyle.Flat;
+            btnMatches.ForeColor = Color.Black;
+            btnMatches.Image = Properties.Resources.edit1;
+            btnMatches.ImageAlign = ContentAlignment.MiddleLeft;
+            btnMatches.Location = new Point(0, 260);
+            btnMatches.Margin = new Padding(3, 4, 3, 4);
+            btnMatches.Name = "btnMatches";
+            btnMatches.Size = new Size(251, 80);
+            btnMatches.TabIndex = 1;
+            btnMatches.Text = "MATCHES";
+            btnMatches.TextAlign = ContentAlignment.MiddleLeft;
+            btnMatches.TextImageRelation = TextImageRelation.ImageBeforeText;
+            btnMatches.UseVisualStyleBackColor = true;
+            // 
+            // btnTeams
+            // 
+            btnTeams.AutoSize = true;
+            btnTeams.Dock = DockStyle.Top;
+            btnTeams.FlatAppearance.BorderSize = 0;
+            btnTeams.FlatStyle = FlatStyle.Flat;
+            btnTeams.ForeColor = Color.Black;
+            btnTeams.Image = Properties.Resources.users_group__1_;
+            btnTeams.ImageAlign = ContentAlignment.MiddleLeft;
+            btnTeams.Location = new Point(0, 180);
+            btnTeams.Margin = new Padding(3, 4, 3, 4);
+            btnTeams.Name = "btnTeams";
+            btnTeams.Size = new Size(251, 80);
+            btnTeams.TabIndex = 2;
+            btnTeams.Text = "TEAMS";
+            btnTeams.TextAlign = ContentAlignment.MiddleLeft;
+            btnTeams.TextImageRelation = TextImageRelation.ImageBeforeText;
+            btnTeams.UseVisualStyleBackColor = true;
+            // 
+            // btnDashboard
+            // 
+            btnDashboard.BackColor = Color.Transparent;
+            btnDashboard.Dock = DockStyle.Top;
+            btnDashboard.FlatAppearance.BorderSize = 0;
+            btnDashboard.FlatStyle = FlatStyle.Flat;
+            btnDashboard.ForeColor = Color.Black;
+            btnDashboard.Image = Properties.Resources.home_2__1_;
+            btnDashboard.ImageAlign = ContentAlignment.MiddleLeft;
+            btnDashboard.Location = new Point(0, 100);
+            btnDashboard.Margin = new Padding(3, 4, 3, 4);
+            btnDashboard.Name = "btnDashboard";
+            btnDashboard.Size = new Size(251, 80);
+            btnDashboard.TabIndex = 3;
+            btnDashboard.Text = "DASHBOARD";
+            btnDashboard.TextImageRelation = TextImageRelation.ImageBeforeText;
+            btnDashboard.UseVisualStyleBackColor = false;
+            // 
+            // panelContent
+            // 
+            panelContent.BackColor = Color.White;
+            panelContent.Dock = DockStyle.Fill;
+            panelContent.Location = new Point(251, 92);
+            panelContent.Name = "panelContent";
+            panelContent.Size = new Size(892, 630);
+            panelContent.TabIndex = 5;
+            // 
+            // MainForm
+            // 
+            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(1143, 748);
+            Controls.Add(panelContent);
+            Controls.Add(panelSidebar);
+            Controls.Add(flowLayoutPanel1);
+            Controls.Add(statusStrip1);
+            Margin = new Padding(3, 4, 3, 4);
+            Name = "MainForm";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Cricket Tournament Manager";
+            statusStrip1.ResumeLayout(false);
+            statusStrip1.PerformLayout();
+            flowLayoutPanel1.ResumeLayout(false);
+            flowLayoutPanel1.PerformLayout();
+            panelSidebar.ResumeLayout(false);
+            panelSidebar.PerformLayout();
+            ResumeLayout(false);
+            PerformLayout();
+        }
+
+        #endregion
+        private StatusStrip statusStrip1;
+        private FlowLayoutPanel flowLayoutPanel1;
+        private Panel panelSidebar;
+        private Button btnPerformances;
+        private Button btnMatches;
+        private Button btnTeams;
+        private Button btnDashboard;
+        private Panel panelContent;
+        private Button button1;
+        private ToolStripStatusLabel toolStripStatusLabel1;
+    }
+}

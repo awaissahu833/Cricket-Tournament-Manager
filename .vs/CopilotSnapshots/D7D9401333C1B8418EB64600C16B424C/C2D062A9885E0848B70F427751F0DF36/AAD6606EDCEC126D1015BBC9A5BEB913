@@ -1,0 +1,183 @@
+﻿using App.Core.Contracts;
+using App.Core.Models;
+using Microsoft.Data.SqlClient;
+using System;
+using System.Collections.Generic;
+
+namespace App.Core.Services
+{
+    public class DbPlayerService : IPlayerService
+    {
+        private readonly string _connectionString;
+
+        public DbPlayerService(string connString)
+        {
+            _connectionString = connString;
+        }
+
+        public void Add(Player player)
+        {
+            if (string.IsNullOrWhiteSpace(player.PlayerId))
+                player.PlayerId = Guid.NewGuid().ToString("N");
+
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                string sql = @"INSERT INTO Players (PlayerId, Name, Nationality, Role, TeamId)
+                               VALUES (@PlayerId, @Name, @Nationality, @Role, @TeamId)";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+
+                cmd.Parameters.AddWithValue("@PlayerId",    player.PlayerId);
+                cmd.Parameters.AddWithValue("@Name",        player.Name);
+                cmd.Parameters.AddWithValue("@Nationality", player.Nationality);
+                cmd.Parameters.AddWithValue("@Role",        player.Role);
+                cmd.Parameters.AddWithValue("@TeamId",      player.TeamId ?? (object)DBNull.Value);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public List<Player> GetAll()
+        {
+            List<Player> players = new List<Player>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                string sql = @"SELECT p.PlayerId, p.Name, p.Nationality, p.Role, p.TeamId,
+                                      p.TeamId
+                               FROM   Players p
+                               ORDER BY p.Name";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        players.Add(MapPlayer(reader));
+                    }
+                }
+            }
+
+            return players;
+        }
+
+        public Player GetById(string id)
+        {
+            Player player = null;
+
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                string sql = @"SELECT p.PlayerId, p.Name, p.Nationality, p.Role, p.TeamId,
+                                      p.TeamId
+                               FROM   Players p
+                               WHERE  p.PlayerId = @id";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+
+                cmd.Parameters.AddWithValue("@id", id);
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        player = MapPlayer(reader);
+                    }
+                }
+            }
+
+            return player;
+        }
+
+        public void Update(Player player)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                string sql = @"UPDATE Players
+                               SET Name        = @Name,
+                                   Nationality = @Nationality,
+                                   Role        = @Role,
+                                   TeamId      = @TeamId
+                               WHERE PlayerId = @PlayerId";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+
+                cmd.Parameters.AddWithValue("@Name",        player.Name);
+                cmd.Parameters.AddWithValue("@Nationality", player.Nationality);
+                cmd.Parameters.AddWithValue("@Role",        player.Role);
+                cmd.Parameters.AddWithValue("@TeamId",      player.TeamId ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@PlayerId",    player.PlayerId);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void Delete(string id)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                string sql = "DELETE FROM Players WHERE PlayerId = @id";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+
+                cmd.Parameters.AddWithValue("@id", id);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public List<Player> Search(string keyword)
+        {
+            List<Player> players = new List<Player>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                string sql = @"SELECT p.PlayerId, p.Name, p.Nationality, p.Role, p.TeamId,
+                                      p.TeamId
+                               FROM   Players p
+                               WHERE  p.Name        LIKE @keyword
+                                  OR  p.Nationality LIKE @keyword
+                                  OR  p.Role        LIKE @keyword
+                               ORDER BY p.Name";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+
+                cmd.Parameters.AddWithValue("@keyword", "%" + keyword.Trim() + "%");
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        players.Add(MapPlayer(reader));
+                    }
+                }
+            }
+
+            return players;
+        }
+
+        private Player MapPlayer(SqlDataReader reader)
+        {
+            return new Player
+            {
+                PlayerId    = reader["PlayerId"].ToString(),
+                Name        = reader["Name"].ToString(),
+                Nationality = reader["Nationality"].ToString(),
+                Role        = reader["Role"].ToString(),
+                TeamId      = reader["TeamId"].ToString()
+            };
+        }
+    }
+}

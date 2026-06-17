@@ -1,0 +1,245 @@
+﻿using App.Core.Contracts;
+using App.Core.Models;
+using App.Core.Utilities;
+using Microsoft.Data.SqlClient;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace App.Core.Services
+{
+    public class DbProductService : IProductService
+    {
+        private readonly string _connectionString;
+
+        public DbProductService(string connString)
+        {
+            _connectionString = connString;
+        }
+
+        public Product Add(Product product)
+        {
+            product.Id = Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper();
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string sql = @"INSERT INTO Products
+                              (Id, Name, Category, Price, Stock, Status)
+                               VALUES
+                              (@Id, @Name, @Category, @Price, @Stock, @Status)";
+
+                SqlCommand cmd = new SqlCommand(sql, connection);
+
+                cmd.Parameters.AddWithValue("@Id", product.Id);
+                cmd.Parameters.AddWithValue("@Name", product.Name);
+                cmd.Parameters.AddWithValue("@Category", product.Category.ToString());
+                cmd.Parameters.AddWithValue("@Price", product.Price);
+                cmd.Parameters.AddWithValue("@Stock", product.Stock);
+                cmd.Parameters.AddWithValue("@Status", product.Status.ToString());
+
+                int rows = cmd.ExecuteNonQuery();
+                return rows > 0 ? product : null;
+            }
+        }
+
+        public List<Product> GetAll()
+        {
+            List<Product> products = new List<Product>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                SqlCommand cmd = new SqlCommand("SELECT * FROM Products", conn);
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        products.Add(MapProduct(reader));
+                    }
+                }
+            }
+
+            return products;
+        }
+
+        public async Task<List<Product>> SearchAsync(string text, ProductCategoryEnum? category, ProductStatusEnum? status)
+        {
+            List<Product> products = new();
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                string sql = "SELECT * FROM Products WHERE 1=1";
+
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = connection;
+
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    sql += " AND Name LIKE @name";
+                    cmd.Parameters.AddWithValue("@name", "%" + text.Trim() + "%");
+                }
+
+                if (category.HasValue && category.Value != ProductCategoryEnum.None)
+                {
+                    sql += " AND Category = @cat";
+                    cmd.Parameters.AddWithValue("@cat", category.Value.ToString());
+                }
+
+                if (status.HasValue)
+                {
+                    sql += " AND Status = @status";
+                    cmd.Parameters.AddWithValue("@status", status.Value.ToString());
+                }
+
+                cmd.CommandText = sql;
+
+                using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        products.Add(MapProduct(reader));
+                    }
+                }
+            }
+
+            return products;
+        }
+
+        public Product GetById(string id)
+        {
+            Product product = null;
+
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                string sql = "SELECT * FROM Products WHERE Id=@id";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@id", id);
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        product = MapProduct(reader);
+                    }
+                }
+            }
+
+            return product;
+        }
+
+        public List<Product> Search(string text,
+     ProductCategoryEnum? category,
+     ProductStatusEnum? status)
+        {
+            List<Product> products = new();
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string sql = "SELECT * FROM Products WHERE 1=1";
+
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = connection;
+
+                // 🔹 Name filter
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    sql += " AND Name LIKE @name";
+                    cmd.Parameters.AddWithValue("@name", "%" + text.Trim() + "%");
+                }
+
+                // 🔹 Category filter
+                if (category.HasValue && category.Value != ProductCategoryEnum.None)
+                {
+                    sql += " AND Category = @cat";
+                    cmd.Parameters.AddWithValue("@cat", category.Value.ToString());
+                }
+
+                // 🔹 Status filter
+                if (status.HasValue)
+                {
+                    sql += " AND Status = @status";
+                    cmd.Parameters.AddWithValue("@status", status.Value.ToString());
+                }
+
+                cmd.CommandText = sql;
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        products.Add(MapProduct(reader));
+                    }
+                }
+            }
+
+            return products;
+        }
+        public bool Update(Product product)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                string sql = @"UPDATE Products 
+                               SET Name=@name,
+                                   Category=@cat,
+                                   Price=@price,
+                                   Stock=@stock,
+                                   Status=@status
+                               WHERE Id=@id";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+
+                cmd.Parameters.AddWithValue("@name", product.Name);
+                cmd.Parameters.AddWithValue("@cat", product.Category.ToString());
+                cmd.Parameters.AddWithValue("@price", product.Price);
+                cmd.Parameters.AddWithValue("@stock", product.Stock);
+                cmd.Parameters.AddWithValue("@status", product.Status.ToString());
+                cmd.Parameters.AddWithValue("@id", product.Id);
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public bool Delete(string id)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                string sql = "DELETE FROM Products WHERE Id=@id";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@id", id);
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        private Product MapProduct(SqlDataReader reader)
+        {
+            return new Product
+            {
+                Id = reader["Id"].ToString(),
+                Name = reader["Name"].ToString(),
+                Category = Enum.TryParse<ProductCategoryEnum>(reader["Category"].ToString(), out var cat)
+                            ? cat : ProductCategoryEnum.None,
+                Price = Convert.ToDecimal(reader["Price"]),
+                Stock = Convert.ToInt32(reader["Stock"]),
+                Status = Enum.TryParse<ProductStatusEnum>(reader["Status"].ToString(), out var status)
+                            ? status : ProductStatusEnum.Active
+            };
+        }
+    }
+}

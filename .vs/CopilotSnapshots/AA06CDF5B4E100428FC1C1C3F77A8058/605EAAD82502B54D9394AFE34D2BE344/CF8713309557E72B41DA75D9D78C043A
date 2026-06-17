@@ -1,0 +1,44 @@
+﻿using System;
+using System.Windows.Forms;
+
+namespace App.WindowsApp.Views
+{
+    public partial class PerformanceView : UserControl
+    {
+        public PerformanceView()
+        {
+            InitializeComponent();
+            WireEvents();
+        }
+
+        private void WireEvents()
+        {
+            btnRefresh.Click += (s, e) => RefreshGrids();
+            btnAdd.Click += (s, e) => OnAdd();
+            btnEdit.Click += (s, e) => MessageBox.Show("Edit performance not implemented yet.");
+            btnView.Click += (s, e) => MessageBox.Show("View performance not implemented yet.");
+            btnDelete.Click += (s, e) => MessageBox.Show("Delete performance not implemented yet.");
+        }
+
+        private void RefreshGrids()
+        {
+            dgvBatters.Rows.Clear();
+            dgvBowlers.Rows.Clear();
+            // no data loading here; placeholder to avoid design-time/db deps
+        }
+
+        private void OnAdd()
+        {
+            try
+            {
+                using var form = new App.WindowsApp.Forms.PerformanceForm();
+                form.ShowDialog();
+                RefreshGrids();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to open performance form: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+    }
+}

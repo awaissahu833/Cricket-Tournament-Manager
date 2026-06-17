@@ -1,0 +1,169 @@
+﻿using App.Core.Models;
+using App.Core.Services;
+using System;
+using System.Windows.Forms;
+
+namespace App.WindowsApp.Views
+{
+    public partial class MatchesView : UserControl
+    {
+        private readonly DbMatchService _service;
+
+        public MatchesView()
+        {
+            InitializeComponent();
+            _service = new DbMatchService(AppConfig.ConnectionString);
+            WireEvents();
+            RefreshGrid();
+        }
+
+        private void WireEvents()
+        {
+            btnAdd.Click += (s, e) => AddMatch();
+            btnEdit.Click += (s, e) => EditSelectedMatch();
+            btnView.Click += (s, e) => ViewSelectedMatch();
+            btnDelete.Click += (s, e) => DeleteSelectedMatch();
+            btnRefresh.Click += (s, e) => RefreshGrid();
+        }
+
+        private void RefreshGrid()
+        {
+            try
+            {
+                dgvMatches.Rows.Clear();
+                var items = _service.GetAll();
+                foreach (var m in items)
+                {
+                    dgvMatches.Rows.Add(m.MatchId, m.Team1Id, m.Team2Id, m.MatchDate.ToString("g"), m.Status.ToString(), m.Result);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load matches: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private string GetSelectedId()
+        {
+            if (dgvMatches.SelectedRows.Count == 0) return null;
+            return dgvMatches.SelectedRows[0].Cells[0].Value?.ToString();
+        }
+
+        private void AddMatch()
+        {
+            using var form = new App.WindowsApp.Forms.MatchForm();
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                var m = form.GetMatch();
+                if (string.IsNullOrWhiteSpace(m.MatchId))
+                    m.MatchId = Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper();
+
+                // Validate teams exist to avoid FK errors if DB still has foreign keys
+                var teamService = new DbTeamService(AppConfig.ConnectionString);
+                if (string.IsNullOrWhiteSpace(m.Team1Id) || teamService.GetById(m.Team1Id) == null)
+                {
+                    MessageBox.Show("Team A not found. Please select or create the team before adding a match.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                if (string.IsNullOrWhiteSpace(m.Team2Id) || teamService.GetById(m.Team2Id) == null)
+                {
+                    MessageBox.Show("Team B not found. Please select or create the team before adding a match.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                try
+                {
+                    _service.Add(m);
+                    RefreshGrid();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Failed to add match: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void EditSelectedMatch()
+        {
+            var id = GetSelectedId();
+            if (id == null)
+            {
+                MessageBox.Show("Please select a match to edit.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var m = _service.GetById(id);
+            if (m == null)
+            {
+                MessageBox.Show("Match not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            using var form = new App.WindowsApp.Forms.MatchForm();
+            form.SetMatch(m);
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                var updated = form.GetMatch();
+                var teamService = new DbTeamService(AppConfig.ConnectionString);
+                if (string.IsNullOrWhiteSpace(updated.Team1Id) || teamService.GetById(updated.Team1Id) == null)
+                {
+                    MessageBox.Show("Team A not found. Please select or create the team before updating the match.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                if (string.IsNullOrWhiteSpace(updated.Team2Id) || teamService.GetById(updated.Team2Id) == null)
+                {
+                    MessageBox.Show("Team B not found. Please select or create the team before updating the match.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                try
+                {
+                    _service.Update(updated);
+                    RefreshGrid();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Failed to update match: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void ViewSelectedMatch()
+        {
+            var id = GetSelectedId();
+            if (id == null)
+            {
+                MessageBox.Show("Please select a match to view.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var m = _service.GetById(id);
+            if (m == null)
+            {
+                MessageBox.Show("Match not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            using var form = new App.WindowsApp.Forms.MatchForm();
+            form.SetMatch(m);
+            form.DisableEditing();
+            form.ShowDialog();
+        }
+
+        private void DeleteSelectedMatch()
+        {
+            var id = GetSelectedId();
+            if (id == null)
+            {
+                MessageBox.Show("Please select a match to delete.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (MessageBox.Show("Are you sure to delete selected match?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                _service.Delete(id);
+                RefreshGrid();
+            }
+        }
+    }
+}

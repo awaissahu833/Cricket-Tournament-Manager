@@ -1,0 +1,171 @@
+﻿using App.Core.Contracts;
+using App.Core.Models;
+using Microsoft.Data.SqlClient;
+using System;
+using System.Collections.Generic;
+
+namespace App.Core.Services
+{
+    public class DbTeamService : ITeamService
+    {
+        private readonly string _connectionString;
+
+        public DbTeamService(string connString)
+        {
+            _connectionString = connString;
+        }
+
+        public void Add(Team team)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                string sql = @"INSERT INTO Teams (TeamId, Name, Country, Coach, Captain)
+                               VALUES (@TeamId, @Name, @Country, @Coach, @Captain)";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+
+                cmd.Parameters.AddWithValue("@TeamId", team.TeamId);
+                cmd.Parameters.AddWithValue("@Name", team.Name);
+                cmd.Parameters.AddWithValue("@Country", team.Country);
+                cmd.Parameters.AddWithValue("@Coach", team.Coach);
+                cmd.Parameters.AddWithValue("@Captain", team.Captain);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public List<Team> GetAll()
+        {
+            List<Team> teams = new List<Team>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                SqlCommand cmd = new SqlCommand("SELECT * FROM Teams ORDER BY Name", conn);
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        teams.Add(MapTeam(reader));
+                    }
+                }
+            }
+
+            return teams;
+        }
+
+        public Team GetById(string id)
+        {
+            Team team = null;
+
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                string sql = "SELECT * FROM Teams WHERE TeamId = @id";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+
+                cmd.Parameters.AddWithValue("@id", id);
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        team = MapTeam(reader);
+                    }
+                }
+            }
+
+            return team;
+        }
+
+        public void Update(Team team)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                string sql = @"UPDATE Teams
+                               SET Name    = @Name,
+                                   Country = @Country,
+                                   Coach   = @Coach,
+                                   Captain = @Captain
+                               WHERE TeamId = @TeamId";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+
+                cmd.Parameters.AddWithValue("@Name", team.Name);
+                cmd.Parameters.AddWithValue("@Country", team.Country);
+                cmd.Parameters.AddWithValue("@Coach", team.Coach);
+                cmd.Parameters.AddWithValue("@Captain", team.Captain);
+                cmd.Parameters.AddWithValue("@TeamId", team.TeamId);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void Delete(string id)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                string sql = "DELETE FROM Teams WHERE TeamId = @id";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+
+                cmd.Parameters.AddWithValue("@id", id);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public List<Team> Search(string keyword)
+        {
+            List<Team> teams = new List<Team>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                string sql = @"SELECT * FROM Teams
+                               WHERE Name    LIKE @keyword
+                                  OR Country LIKE @keyword
+                                  OR Coach   LIKE @keyword
+                                  OR Captain LIKE @keyword
+                               ORDER BY Name";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+
+                cmd.Parameters.AddWithValue("@keyword", "%" + keyword.Trim() + "%");
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        teams.Add(MapTeam(reader));
+                    }
+                }
+            }
+
+            return teams;
+        }
+
+        private Team MapTeam(SqlDataReader reader)
+        {
+            return new Team
+            {
+                TeamId  = reader["TeamId"].ToString(),
+                Name    = reader["Name"].ToString(),
+                Country = reader["Country"].ToString(),
+                Coach   = reader["Coach"].ToString(),
+                Captain = reader["Captain"].ToString()
+            };
+        }
+    }
+}

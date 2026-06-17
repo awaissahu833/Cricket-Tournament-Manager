@@ -1,0 +1,58 @@
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Xml.Linq;
+
+namespace App.WindowsApp
+{
+    internal static class AppConfig
+    {
+        private const string ConnFile = "connection.txt";
+        private const string ConnectionName = "CricketDB";
+
+        public static string ConnectionString
+        {
+            get
+            {
+                // 1) connection.txt (explicit override)
+                try
+                {
+                    string path = Path.Combine(AppContext.BaseDirectory, ConnFile);
+                    if (File.Exists(path))
+                    {
+                        var txt = File.ReadAllText(path).Trim();
+                        if (!string.IsNullOrWhiteSpace(txt)) return txt;
+                    }
+                }
+                catch { }
+
+                // 2) Try to find a .config file (app.config / exe.config) and read connectionStrings entry named 'CricketDB'
+                try
+                {
+                    var dir = new DirectoryInfo(AppContext.BaseDirectory);
+                    var configFile = dir.GetFiles("*.config").FirstOrDefault();
+                    if (configFile != null && configFile.Exists)
+                    {
+                        var doc = XDocument.Load(configFile.FullName);
+                        var add = doc.Descendants("connectionStrings")
+                                     .Descendants("add")
+                                     .FirstOrDefault(x => (string?)x.Attribute("name") == ConnectionName);
+
+                        if (add != null)
+                        {
+                            var cs = (string?)add.Attribute("connectionString");
+                            if (!string.IsNullOrWhiteSpace(cs)) return cs.Trim();
+                        }
+                    }
+                }
+                catch { }
+
+                // 3) fallback: developer-friendly localdb default
+                return "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=CricketDb;Integrated Security=True;";
+            }
+        }
+
+        // runtime-held services
+        public static App.Core.Services.DbPerformanceService? DbPerformanceService { get; set; }
+    }
+}

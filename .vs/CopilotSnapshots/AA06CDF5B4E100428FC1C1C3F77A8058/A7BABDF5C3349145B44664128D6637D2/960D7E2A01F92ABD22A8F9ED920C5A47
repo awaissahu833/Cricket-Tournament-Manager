@@ -1,0 +1,44 @@
+﻿using App.Core.Models;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace App.Core.Services
+{
+    // very small in-memory store for performances during app session
+    public class InMemoryPerformanceService
+    {
+        private readonly List<Performance> _items = new List<Performance>();
+
+        public void Add(Performance p)
+        {
+            _items.Add(p);
+        }
+
+        public List<Performance> GetAll()
+        {
+            return _items.ToList();
+        }
+
+        public List<Performance> GetTopBatters(int topN = 5)
+        {
+            return _items
+                .Where(x => x.Runs > 0)
+                .GroupBy(x => new { x.PlayerId, x.PlayerName })
+                .Select(g => new Performance { PlayerId = g.Key.PlayerId, PlayerName = g.Key.PlayerName, Runs = g.Sum(x => x.Runs), Fours = g.Sum(x => x.Fours), Sixes = g.Sum(x => x.Sixes) })
+                .OrderByDescending(x => x.Runs)
+                .Take(topN)
+                .ToList();
+        }
+
+        public List<Performance> GetTopBowlers(int topN = 5)
+        {
+            return _items
+                .Where(x => x.Wickets > 0)
+                .GroupBy(x => new { x.PlayerId, x.PlayerName })
+                .Select(g => new Performance { PlayerId = g.Key.PlayerId, PlayerName = g.Key.PlayerName, Wickets = g.Sum(x => x.Wickets), Overs = string.Empty })
+                .OrderByDescending(x => x.Wickets)
+                .Take(topN)
+                .ToList();
+        }
+    }
+}

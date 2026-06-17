@@ -1,0 +1,197 @@
+﻿using App.Core.Contracts;
+using App.Core.Models;
+using App.Core.Utilities;
+using Microsoft.Data.SqlClient;
+using System;
+using System.Collections.Generic;
+
+namespace App.Core.Services
+{
+    public class DbMatchService : IMatchService
+    {
+        private readonly string _connectionString;
+
+        public DbMatchService(string connString)
+        {
+            _connectionString = connString;
+        }
+
+        public void Add(Match match)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                string sql = @"INSERT INTO Matches (MatchId, Team1Id, Team2Id, MatchDate, Status, Result)
+                               VALUES (@MatchId, @Team1Id, @Team2Id, @MatchDate, @Status, @Result)";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+
+                cmd.Parameters.AddWithValue("@MatchId",   match.MatchId);
+                cmd.Parameters.AddWithValue("@Team1Id",   match.Team1Id);
+                cmd.Parameters.AddWithValue("@Team2Id",   match.Team2Id);
+                cmd.Parameters.AddWithValue("@MatchDate", match.MatchDate);
+                cmd.Parameters.AddWithValue("@Status",    match.Status.ToString());
+                cmd.Parameters.AddWithValue("@Result",    match.Result ?? "");
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public List<Match> GetAll()
+        {
+            List<Match> matches = new List<Match>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                // join teams to get readable team names for display
+                string sql = @"SELECT m.MatchId, m.Team1Id, m.Team2Id, ISNULL(t1.Name,'') AS Team1Name, ISNULL(t2.Name,'') AS Team2Name,
+                                      m.MatchDate, m.Status, m.Result
+                               FROM   Matches m
+                                      LEFT JOIN Teams t1 ON t1.TeamId = m.Team1Id
+                                      LEFT JOIN Teams t2 ON t2.TeamId = m.Team2Id
+                               ORDER BY m.MatchDate DESC";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        matches.Add(MapMatch(reader));
+                    }
+                }
+            }
+
+            return matches;
+        }
+
+        public Match GetById(string id)
+        {
+            Match match = null;
+
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                string sql = @"SELECT m.MatchId, m.Team1Id, m.Team2Id, ISNULL(t1.Name,'') AS Team1Name, ISNULL(t2.Name,'') AS Team2Name,
+                                      m.MatchDate, m.Status, m.Result
+                               FROM   Matches m
+                                      LEFT JOIN Teams t1 ON t1.TeamId = m.Team1Id
+                                      LEFT JOIN Teams t2 ON t2.TeamId = m.Team2Id
+                               WHERE  m.MatchId = @id";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+
+                cmd.Parameters.AddWithValue("@id", id);
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        match = MapMatch(reader);
+                    }
+                }
+            }
+
+            return match;
+        }
+
+        public void Update(Match match)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                string sql = @"UPDATE Matches
+                               SET Team1Id   = @Team1Id,
+                                   Team2Id   = @Team2Id,
+                                   MatchDate = @MatchDate,
+                                   Status    = @Status,
+                                   Result    = @Result
+                               WHERE MatchId = @MatchId";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+
+                cmd.Parameters.AddWithValue("@Team1Id",   match.Team1Id);
+                cmd.Parameters.AddWithValue("@Team2Id",   match.Team2Id);
+                cmd.Parameters.AddWithValue("@MatchDate", match.MatchDate);
+                cmd.Parameters.AddWithValue("@Status",    match.Status.ToString());
+                cmd.Parameters.AddWithValue("@Result",    match.Result ?? "");
+                cmd.Parameters.AddWithValue("@MatchId",   match.MatchId);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void Delete(string id)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                string sql = "DELETE FROM Matches WHERE MatchId = @id";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+
+                cmd.Parameters.AddWithValue("@id", id);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public List<Match> Search(string keyword)
+        {
+            List<Match> matches = new List<Match>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                string sql = @"SELECT m.MatchId, m.Team1Id, m.Team2Id, ISNULL(t1.Name,'') AS Team1Name, ISNULL(t2.Name,'') AS Team2Name,
+                                      m.MatchDate, m.Status, m.Result
+                               FROM   Matches m
+                                      LEFT JOIN Teams t1 ON t1.TeamId = m.Team1Id
+                                      LEFT JOIN Teams t2 ON t2.TeamId = m.Team2Id
+                               WHERE  m.Status LIKE @keyword
+                                  OR  m.Result LIKE @keyword
+                               ORDER BY m.MatchDate DESC";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+
+                cmd.Parameters.AddWithValue("@keyword", "%" + keyword.Trim() + "%");
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        matches.Add(MapMatch(reader));
+                    }
+                }
+            }
+
+            return matches;
+        }
+
+        private Match MapMatch(SqlDataReader reader)
+        {
+            MatchStatusEnum status = MatchStatusEnum.Scheduled;
+
+            Enum.TryParse(reader["Status"].ToString(), out status);
+
+            return new Match
+            {
+                MatchId   = reader["MatchId"].ToString(),
+                Team1Id   = reader["Team1Id"].ToString(),
+                Team2Id   = reader["Team2Id"].ToString(),
+                Team1Name = string.Empty,
+                Team2Name = string.Empty,
+                MatchDate = Convert.ToDateTime(reader["MatchDate"]),
+                Status    = status,
+                Result    = reader["Result"].ToString()
+            };
+        }
+    }
+}

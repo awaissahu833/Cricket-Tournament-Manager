@@ -1,0 +1,92 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Text;
+using System.Windows.Forms;
+
+namespace App.WindowsApp.Forms
+{
+    public partial class PerformanceForm : Form
+    {
+        public PerformanceForm()
+        {
+            InitializeComponent();
+            try
+            {
+                // wire save / cancel
+                btnSave.Click += (s, e) => OnSave();
+                btnCancel.Click += (s, e) => OnCancel();
+
+                // allow Enter/Esc to trigger save/cancel
+                this.AcceptButton = btnSave;
+                this.CancelButton = btnCancel;
+                var matchSvc = new App.Core.Services.DbMatchService(AppConfig.ConnectionString);
+                var teamSvc = new App.Core.Services.DbTeamService(AppConfig.ConnectionString);
+
+                var matches = matchSvc.GetAll();
+                var teams = teamSvc.GetAll();
+
+                if (cmbMatch != null)
+                {
+                    cmbMatch.DisplayMember = "MatchDate"; // will show date by default
+                    cmbMatch.ValueMember = "MatchId";
+                    cmbMatch.DataSource = matches;
+                    cmbMatch.SelectedIndexChanged += (s, e) => {
+                        // placeholder: refresh dependent controls when match changes
+                    };
+                }
+
+                if (cmbTeam != null)
+                {
+                    cmbTeam.DisplayMember = "Name";
+                    cmbTeam.ValueMember = "TeamId";
+                    cmbTeam.DataSource = teams;
+                    cmbTeam.SelectedIndexChanged += (s, e) => {
+                        // placeholder: refresh dependent controls when team changes
+                    };
+                }
+            }
+            catch { }
+        }
+
+        private void OnSave()
+        {
+            try
+            {
+                // minimal validation: ensure player id and match/team selected
+                if (cmbMatch != null && cmbMatch.Items.Count > 0 && cmbMatch.SelectedIndex < 0)
+                {
+                    MessageBox.Show("Please select a match.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                if (cmbTeam != null && cmbTeam.Items.Count > 0 && cmbTeam.SelectedIndex < 0)
+                {
+                    MessageBox.Show("Please select a team.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(txtPlayerId?.Text))
+                {
+                    MessageBox.Show("Please enter player id.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to save performance: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void OnCancel()
+        {
+            this.DialogResult = DialogResult.Cancel;
+            this.Close();
+        }
+    }
+}

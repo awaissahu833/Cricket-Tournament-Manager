@@ -1,0 +1,177 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Text;
+using System.Windows.Forms;
+
+namespace App.WindowsApp.Forms
+{
+    public partial class PerformanceForm : Form
+    {
+        public PerformanceForm()
+        {
+            InitializeComponent();
+            try
+            {
+                // wire save / cancel (controls may be removed from designer; find at runtime)
+                var btnSaveCtr = FindControl<Button>("btnSave");
+                var btnCancelCtr = FindControl<Button>("btnCancel");
+
+                if (btnSaveCtr != null) btnSaveCtr.Click += (s, e) => OnSave();
+                if (btnCancelCtr != null) btnCancelCtr.Click += (s, e) => OnCancel();
+
+                // allow Enter/Esc to trigger save/cancel when buttons exist
+                if (btnSaveCtr != null) this.AcceptButton = btnSaveCtr;
+                if (btnCancelCtr != null) this.CancelButton = btnCancelCtr;
+
+                var matchSvc = new App.Core.Services.DbMatchService(AppConfig.ConnectionString);
+                var teamSvc = new App.Core.Services.DbTeamService(AppConfig.ConnectionString);
+
+                var matches = matchSvc.GetAll();
+                var teams = teamSvc.GetAll();
+
+                var cmbMatchCtr = FindControl<ComboBox>("cmbMatch");
+                var cmbTeamCtr = FindControl<ComboBox>("cmbTeam");
+
+                if (cmbMatchCtr != null)
+                {
+                    cmbMatchCtr.DisplayMember = "MatchDate"; // will show date by default
+                    cmbMatchCtr.ValueMember = "MatchId";
+                    cmbMatchCtr.DataSource = matches;
+                    cmbMatchCtr.SelectedIndexChanged += (s, e) => {
+                        // placeholder: refresh dependent controls when match changes
+                    };
+                }
+
+                if (cmbTeamCtr != null)
+                {
+                    cmbTeamCtr.DisplayMember = "Name";
+                    cmbTeamCtr.ValueMember = "TeamId";
+                    cmbTeamCtr.DataSource = teams;
+                    cmbTeamCtr.SelectedIndexChanged += (s, e) => {
+                        // placeholder: refresh dependent controls when team changes
+                    };
+                }
+            }
+            catch { }
+        }
+
+        private T FindControl<T>(string name) where T : class
+        {
+            try
+            {
+                var ctrs = this.Controls.Find(name, true);
+                if (ctrs != null && ctrs.Length > 0 && ctrs[0] is T t) return t;
+            }
+            catch { }
+            return null;
+        }
+
+        private void OnSave()
+        {
+            try
+            {
+                // minimal validation: ensure player id and match/team selected
+                var cmbMatchCtl = FindControl<ComboBox>("cmbMatch");
+                var cmbTeamCtl = FindControl<ComboBox>("cmbTeam");
+                var txtPlayerIdCtl = FindControl<TextBox>("txtPlayerId");
+
+                if (cmbMatchCtl != null && cmbMatchCtl.Items.Count > 0 && cmbMatchCtl.SelectedIndex < 0)
+                {
+                    MessageBox.Show("Please select a match.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                if (cmbTeamCtl != null && cmbTeamCtl.Items.Count > 0 && cmbTeamCtl.SelectedIndex < 0)
+                {
+                    MessageBox.Show("Please select a team.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                if (txtPlayerIdCtl != null && string.IsNullOrWhiteSpace(txtPlayerIdCtl.Text))
+                {
+                    MessageBox.Show("Please enter player id.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to save performance: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void OnCancel()
+        {
+            this.DialogResult = DialogResult.Cancel;
+            this.Close();
+        }
+
+        // Public accessors used by caller (PerformanceView) to read entered values
+        public string GetPlayerId()
+        {
+            var tb = FindControl<TextBox>("txtPlayerId");
+            return tb?.Text?.Trim() ?? string.Empty;
+        }
+
+        public string GetPlayerName()
+        {
+            var tb = FindControl<TextBox>("txtPlayerName");
+            return tb?.Text?.Trim() ?? string.Empty;
+        }
+
+        public string GetTeamText()
+        {
+            var cmb = FindControl<ComboBox>("cmbTeam");
+            return cmb?.Text ?? string.Empty;
+        }
+
+        public string GetMatchText()
+        {
+            var cmb = FindControl<ComboBox>("cmbMatch");
+            return cmb?.Text ?? string.Empty;
+        }
+
+        public int GetRuns()
+        {
+            var tb = FindControl<TextBox>("txtRuns");
+            if (tb == null) return 0;
+            if (int.TryParse(tb.Text.Trim(), out var v)) return v;
+            return 0;
+        }
+
+        public int GetFours()
+        {
+            var tb = FindControl<TextBox>("txtFours");
+            if (tb == null) return 0;
+            if (int.TryParse(tb.Text.Trim(), out var v)) return v;
+            return 0;
+        }
+
+        public int GetSixes()
+        {
+            var tb = FindControl<TextBox>("txtSixes");
+            if (tb == null) return 0;
+            if (int.TryParse(tb.Text.Trim(), out var v)) return v;
+            return 0;
+        }
+
+        public int GetWickets()
+        {
+            var tb = FindControl<TextBox>("txtWickets");
+            if (tb == null) return 0;
+            if (int.TryParse(tb.Text.Trim(), out var v)) return v;
+            return 0;
+        }
+
+        public string GetOvers()
+        {
+            var tb = FindControl<TextBox>("txtOvers");
+            return tb?.Text?.Trim() ?? string.Empty;
+        }
+    }
+}

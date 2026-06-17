@@ -1,0 +1,209 @@
+﻿using App.Core.Models;
+using Microsoft.Data.SqlClient;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+
+namespace App.Core.Services
+{
+    public class DbPerformanceService
+    {
+        private readonly string _connectionString;
+
+        public DbPerformanceService(string connString)
+        {
+            _connectionString = connString;
+            EnsureTableExists();
+        }
+
+        private void EnsureTableExists()
+        {
+            using var conn = new SqlConnection(_connectionString);
+            conn.Open();
+
+            // check if table exists
+            string check = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Performances'";
+            using (var cmd = new SqlCommand(check, conn))
+            {
+                var exists = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                if (exists) return;
+            }
+
+            string create = @"CREATE TABLE Performances (
+                                PerformanceId NVARCHAR(50) PRIMARY KEY,
+                                PlayerId NVARCHAR(100),
+                                PlayerName NVARCHAR(200),
+                                TeamName NVARCHAR(200),
+                                Runs INT DEFAULT 0,
+                                Fours INT DEFAULT 0,
+                                Sixes INT DEFAULT 0,
+                                Wickets INT DEFAULT 0,
+                                Overs NVARCHAR(50),
+                                CreatedAt DATETIME DEFAULT GETUTCDATE()
+                              );";
+
+            using (var cmd = new SqlCommand(create, conn))
+            {
+                cmd.ExecuteNonQuery();
+            }
+
+        }
+
+        public void Update(Performance p)
+        {
+            using var conn = new SqlConnection(_connectionString);
+            conn.Open();
+
+            string sql = @"UPDATE Performances SET PlayerId=@PlayerId, PlayerName=@PlayerName, TeamName=@TeamName,
+                            Runs=@Runs, Fours=@Fours, Sixes=@Sixes,
+                            Wickets=@Wickets, Overs=@Overs WHERE PerformanceId=@PerformanceId";
+
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@PerformanceId", p.PerformanceId);
+            cmd.Parameters.AddWithValue("@PlayerId", p.PlayerId ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@PlayerName", p.PlayerName ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@TeamName", p.TeamName ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@Runs", p.Runs);
+            cmd.Parameters.AddWithValue("@Fours", p.Fours);
+            cmd.Parameters.AddWithValue("@Sixes", p.Sixes);
+            cmd.Parameters.AddWithValue("@Wickets", p.Wickets);
+            cmd.Parameters.AddWithValue("@Overs", p.Overs ?? (object)DBNull.Value);
+
+            cmd.ExecuteNonQuery();
+        }
+
+        public void Delete(string performanceId)
+        {
+            using var conn = new SqlConnection(_connectionString);
+            conn.Open();
+
+            string sql = "DELETE FROM Performances WHERE PerformanceId = @id";
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@id", performanceId);
+            cmd.ExecuteNonQuery();
+        }
+
+        public void Add(Performance p)
+        {
+            if (string.IsNullOrWhiteSpace(p.PerformanceId))
+                p.PerformanceId = Guid.NewGuid().ToString("N");
+
+            using var conn = new SqlConnection(_connectionString);
+            conn.Open();
+
+            string sql = @"INSERT INTO Performances (PerformanceId, PlayerId, PlayerName, TeamName, Runs, Fours, Sixes, Wickets, Overs, CreatedAt)
+                           VALUES (@PerformanceId, @PlayerId, @PlayerName, @TeamName, @Runs, @Fours, @Sixes, @Wickets, @Overs, @CreatedAt)";
+
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@PerformanceId", p.PerformanceId);
+            cmd.Parameters.AddWithValue("@PlayerId", p.PlayerId ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@PlayerName", p.PlayerName ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@TeamName", p.TeamName ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@Runs", p.Runs);
+            cmd.Parameters.AddWithValue("@Fours", p.Fours);
+            cmd.Parameters.AddWithValue("@Sixes", p.Sixes);
+            cmd.Parameters.AddWithValue("@Wickets", p.Wickets);
+            cmd.Parameters.AddWithValue("@Overs", p.Overs ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@CreatedAt", p.CreatedAt == default ? DateTime.UtcNow : p.CreatedAt);
+
+            cmd.ExecuteNonQuery();
+        }
+
+        public List<Performance> GetTopBatters(int topN = 5)
+        {
+            var list = new List<Performance>();
+
+            using var conn = new SqlConnection(_connectionString);
+            conn.Open();
+
+            string sql = $@"SELECT TOP(@top) PlayerId, PlayerName, SUM(Runs) AS Runs, SUM(Fours) AS Fours, SUM(Sixes) AS Sixes
+                            FROM Performances
+                            WHERE Runs IS NOT NULL
+                            GROUP BY PlayerId, PlayerName
+                            ORDER BY SUM(Runs) DESC";
+
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@top", topN);
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                list.Add(new Performance
+                {
+                    PlayerId = reader["PlayerId"].ToString(),
+                    PlayerName = reader["PlayerName"].ToString(),
+                    Runs = reader["Runs"] != DBNull.Value ? Convert.ToInt32(reader["Runs"]) : 0,
+                    Fours = reader["Fours"] != DBNull.Value ? Convert.ToInt32(reader["Fours"]) : 0,
+                    Sixes = reader["Sixes"] != DBNull.Value ? Convert.ToInt32(reader["Sixes"]) : 0
+                });
+            }
+
+            return list;
+        }
+
+        public List<Performance> GetAll()
+        {
+            var list = new List<Performance>();
+
+            using var conn = new SqlConnection(_connectionString);
+            conn.Open();
+
+            string sql = @"SELECT PerformanceId, PlayerId, PlayerName, TeamName, Runs, Fours, Sixes, Wickets, Overs, CreatedAt
+                           FROM Performances
+                           ORDER BY CreatedAt DESC";
+
+            using var cmd = new SqlCommand(sql, conn);
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                list.Add(new Performance
+                {
+                    PerformanceId = reader["PerformanceId"].ToString(),
+                    PlayerId = reader["PlayerId"]?.ToString(),
+                    PlayerName = reader["PlayerName"]?.ToString(),
+                    TeamName = reader["TeamName"]?.ToString(),
+                    Runs = reader["Runs"] != DBNull.Value ? Convert.ToInt32(reader["Runs"]) : 0,
+                    Fours = reader["Fours"] != DBNull.Value ? Convert.ToInt32(reader["Fours"]) : 0,
+                    Sixes = reader["Sixes"] != DBNull.Value ? Convert.ToInt32(reader["Sixes"]) : 0,
+                    Wickets = reader["Wickets"] != DBNull.Value ? Convert.ToInt32(reader["Wickets"]) : 0,
+                    Overs = reader["Overs"]?.ToString(),
+                    CreatedAt = reader["CreatedAt"] != DBNull.Value ? Convert.ToDateTime(reader["CreatedAt"]) : DateTime.UtcNow
+                });
+            }
+
+            return list;
+        }
+
+        public List<Performance> GetTopBowlers(int topN = 5)
+        {
+            var list = new List<Performance>();
+
+            using var conn = new SqlConnection(_connectionString);
+            conn.Open();
+
+            string sql = $@"SELECT TOP(@top) PlayerId, PlayerName, SUM(Wickets) AS Wickets, MAX(Overs) AS Overs
+                            FROM Performances
+                            WHERE Wickets IS NOT NULL
+                            GROUP BY PlayerId, PlayerName
+                            ORDER BY SUM(Wickets) DESC";
+
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@top", topN);
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                list.Add(new Performance
+                {
+                    PlayerId = reader["PlayerId"].ToString(),
+                    PlayerName = reader["PlayerName"].ToString(),
+                    Wickets = reader["Wickets"] != DBNull.Value ? Convert.ToInt32(reader["Wickets"]) : 0,
+                    Overs = reader["Overs"]?.ToString()
+                });
+            }
+
+            return list;
+        }
+    }
+}

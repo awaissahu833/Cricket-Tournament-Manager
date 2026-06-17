@@ -1,0 +1,10 @@
+﻿namespace App.Core.Utilities
+{
+    public enum ProductCategoryEnum
+    {
+        None = 0,
+        Electronics,
+        Grocery,
+        Clothing
+    }
+}

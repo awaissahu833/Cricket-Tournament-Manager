@@ -1,0 +1,92 @@
+﻿-- ============================================================
+-- Cricket Tournament Manager — Database Setup Script
+-- Run this in SQL Server Management Studio (SSMS) or
+-- Visual Studio → SQL Server Object Explorer → New Query
+-- ============================================================
+
+-- 1. Create the database (skip if it already exists)
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'CricketTournamentDB')
+    CREATE DATABASE CricketTournamentDB;
+GO
+
+USE CricketTournamentDB;
+GO
+
+-- 2. Teams
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Teams')
+BEGIN
+    CREATE TABLE Teams
+    (
+        TeamId  NVARCHAR(20)  NOT NULL PRIMARY KEY,
+        Name    NVARCHAR(100) NOT NULL,
+        Country NVARCHAR(50)  NOT NULL DEFAULT '',
+        Coach   NVARCHAR(100) NOT NULL DEFAULT '',
+        Captain NVARCHAR(100) NOT NULL DEFAULT ''
+    );
+    PRINT 'Table Teams created.';
+END
+GO
+
+-- 3. Players
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Players')
+BEGIN
+    CREATE TABLE Players
+    (
+        PlayerId    NVARCHAR(20)  NOT NULL PRIMARY KEY,
+        Name        NVARCHAR(100) NOT NULL,
+        Nationality NVARCHAR(50)  NOT NULL DEFAULT '',
+        Role        NVARCHAR(20)  NOT NULL DEFAULT 'Batsman',
+        TeamId      NVARCHAR(20)  NULL
+    );
+    PRINT 'Table Players created.';
+END
+GO
+
+-- 4. Matches
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Matches')
+BEGIN
+    CREATE TABLE Matches
+    (
+        MatchId   NVARCHAR(20)  NOT NULL PRIMARY KEY,
+        Team1Id   NVARCHAR(20)  NOT NULL,
+        Team2Id   NVARCHAR(20)  NOT NULL,
+        MatchDate DATETIME      NOT NULL DEFAULT GETDATE(),
+        Status    NVARCHAR(20)  NOT NULL DEFAULT 'Scheduled',
+        Result    NVARCHAR(200) NOT NULL DEFAULT ''
+    );
+    PRINT 'Table Matches created.';
+END
+GO
+
+-- ============================================================
+-- Sample Data (optional — delete if not needed)
+-- ============================================================
+
+INSERT INTO Teams (TeamId, Name, Country, Coach, Captain) VALUES
+    ('T-A1B2C3D4', 'India',        'India',       'Rahul Dravid',     'Rohit Sharma'),
+    ('T-E5F6G7H8', 'Australia',    'Australia',   'Andrew McDonald',  'Pat Cummins'),
+    ('T-I9J0K1L2', 'England',      'England',     'Matthew Mott',     'Jos Buttler'),
+    ('T-M3N4O5P6', 'Pakistan',     'Pakistan',    'Gary Kirsten',     'Babar Azam'),
+    ('T-Q7R8S9T0', 'South Africa', 'South Africa','Rob Walter',       'Temba Bavuma');
+GO
+
+INSERT INTO Players (PlayerId, Name, Nationality, Role, TeamId) VALUES
+    ('P-AA000001', 'Rohit Sharma',   'Indian',     'Batsman',      'T-A1B2C3D4'),
+    ('P-AA000002', 'Virat Kohli',    'Indian',     'Batsman',      'T-A1B2C3D4'),
+    ('P-AA000003', 'Jasprit Bumrah', 'Indian',     'Bowler',       'T-A1B2C3D4'),
+    ('P-BB000001', 'Pat Cummins',    'Australian', 'Bowler',       'T-E5F6G7H8'),
+    ('P-BB000002', 'Steve Smith',    'Australian', 'Batsman',      'T-E5F6G7H8'),
+    ('P-CC000001', 'Babar Azam',     'Pakistani',  'Batsman',      'T-M3N4O5P6'),
+    ('P-CC000002', 'Shaheen Afridi', 'Pakistani',  'Bowler',       'T-M3N4O5P6'),
+    ('P-DD000001', 'MS Dhoni',       'Indian',     'WicketKeeper', 'T-A1B2C3D4');
+GO
+
+INSERT INTO Matches (MatchId, Team1Id, Team2Id, MatchDate, Status, Result) VALUES
+    ('M-00000001', 'T-A1B2C3D4', 'T-E5F6G7H8', '2025-03-01', 'Completed', 'India won by 6 wickets'),
+    ('M-00000002', 'T-M3N4O5P6', 'T-I9J0K1L2', '2025-03-05', 'Completed', 'Pakistan won by 45 runs'),
+    ('M-00000003', 'T-A1B2C3D4', 'T-M3N4O5P6', '2025-03-10', 'Scheduled', ''),
+    ('M-00000004', 'T-E5F6G7H8', 'T-Q7R8S9T0', '2025-03-12', 'Scheduled', '');
+GO
+
+PRINT 'Database setup complete!';
+GO

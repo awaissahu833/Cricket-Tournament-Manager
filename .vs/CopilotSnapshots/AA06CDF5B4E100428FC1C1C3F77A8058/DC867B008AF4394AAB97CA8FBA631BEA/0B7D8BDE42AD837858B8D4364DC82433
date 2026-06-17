@@ -1,0 +1,80 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Text;
+using System.Windows.Forms;
+using App.WindowsApp.Views;
+
+namespace App.WindowsApp.Forms
+{
+    public partial class MainForm : Form
+    {
+        private DashboardView _dashboardView;
+        private TeamsView _teamsView;
+        private MatchesView _matchesView;
+        private PerformanceView _performanceView;
+
+        public MainForm()
+        {
+            InitializeComponent();
+            // open main window maximized so the app uses full screen
+            this.WindowState = FormWindowState.Maximized;
+
+            // Hook up sidebar buttons
+            btnDashboard.Click += (s, e) => ShowDashboard();
+            btnTeams.Click += (s, e) => ShowTeams();
+            btnMatches.Click += (s, e) => ShowMatches();
+            btnPerformances.Click += (s, e) => ShowPerformances();
+
+            // Show default view
+            ShowDashboard();
+        }
+
+        private void ShowView(UserControl view, string actionName)
+        {
+            panelContent.Controls.Clear();
+            view.Dock = DockStyle.Fill;
+            view.Visible = true;
+            panelContent.Controls.Add(view);
+            view.BringToFront();
+            panelContent.Refresh();
+
+        }
+
+        private void ShowDashboard()
+        {
+           
+            if (_dashboardView == null)
+                _dashboardView = new DashboardView();
+            _dashboardView.RefreshData();
+            Dock= DockStyle.Fill;
+            ShowView(_dashboardView, "Opened Dashboard");
+        }
+
+        private void ShowTeams()
+        {
+            if (_teamsView == null)
+                _teamsView = new TeamsView(AppConfig.ConnectionString);
+
+            ShowView(_teamsView, "Opened Teams");
+        }
+
+        private void ShowMatches()
+        {
+            if (_matchesView == null)
+                _matchesView = new MatchesView();
+
+            ShowView(_matchesView, "Opened Matches");
+        }
+
+        private void ShowPerformances()
+        {
+            if (_performanceView == null)
+                _performanceView = new PerformanceView();
+
+            ShowView(_performanceView, "Opened Performances");
+        }
+    }
+}

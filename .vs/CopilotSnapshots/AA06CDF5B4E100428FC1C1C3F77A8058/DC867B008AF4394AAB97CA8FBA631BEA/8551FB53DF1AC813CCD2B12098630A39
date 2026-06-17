@@ -1,0 +1,37 @@
+﻿using System;
+using System.Windows.Forms;
+using App.Core.Services;
+
+namespace App.WindowsApp.Views
+{
+    public partial class DashboardView : UserControl
+    {
+        private readonly DbTeamService _teamService;
+        private readonly DbPlayerService _playerService;
+
+        public DashboardView()
+        {
+            InitializeComponent();
+            _teamService = new DbTeamService(AppConfig.ConnectionString);
+            _playerService = new DbPlayerService(AppConfig.ConnectionString);
+            RefreshData();
+        }
+
+        public void RefreshData()
+        {
+            try
+            {
+                var teams = _teamService.GetAll();
+                lblTeamsCount.Text = teams?.Count.ToString() ?? "0";
+
+                var players = _playerService.GetAll();
+                lblPlayersCount.Text = players?.Count.ToString() ?? "0";
+            }
+            catch (Exception)
+            {
+                lblTeamsCount.Text = "0";
+                lblPlayersCount.Text = "0";
+            }
+        }
+    }
+}

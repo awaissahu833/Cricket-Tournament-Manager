@@ -1,0 +1,61 @@
+﻿using System;
+using System.Windows.Forms;
+using App.Core.Models;
+using App.Core.Utilities;
+
+namespace App.WindowsApp.Forms
+{
+    public partial class MatchForm : Form
+    {
+        public MatchForm()
+        {
+            InitializeComponent();
+            btnSave.Click += (s, e) => OnSave();
+        }
+
+        private void OnSave()
+        {
+            this.DialogResult = DialogResult.OK;
+            this.Close();
+        }
+
+        public Match GetMatch()
+        {
+            DateTime dt = DateTime.Now.Date;
+            try { dt = dtpMatchDate.Value.Date + dtpMatchTime.Value.TimeOfDay; } catch { }
+
+            return new Match
+            {
+                MatchId = txtMatchId.Text?.Trim(),
+                Team1Id = cmbTeamA.SelectedItem?.ToString() ?? cmbTeamA.Text,
+                Team2Id = cmbTeamB.SelectedItem?.ToString() ?? cmbTeamB.Text,
+                MatchDate = dt,
+                Status = MatchStatusEnum.Scheduled,
+                Result = txtWinner.Text
+            };
+        }
+
+        public void SetMatch(Match m)
+        {
+            if (m == null) return;
+            txtMatchId.Text = m.MatchId;
+            cmbTeamA.Text = m.Team1Id;
+            cmbTeamB.Text = m.Team2Id;
+            try { dtpMatchDate.Value = m.MatchDate; dtpMatchTime.Value = m.MatchDate; } catch { }
+            txtGround.Text = "";
+            txtWinner.Text = m.Result;
+        }
+
+        public void DisableEditing()
+        {
+            txtMatchId.ReadOnly = true;
+            cmbTeamA.Enabled = false;
+            cmbTeamB.Enabled = false;
+            dtpMatchDate.Enabled = false;
+            dtpMatchTime.Enabled = false;
+            txtGround.ReadOnly = true;
+            txtWinner.ReadOnly = true;
+            btnSave.Visible = false;
+        }
+    }
+}

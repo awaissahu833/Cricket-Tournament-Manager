@@ -1,0 +1,72 @@
+﻿using System;
+using System.Windows.Forms;
+
+namespace App.WindowsApp.Views
+{
+    public partial class PerformanceView : UserControl
+    {
+        public PerformanceView()
+        {
+            InitializeComponent();
+            WireEvents();
+        }
+
+        private void WireEvents()
+        {
+            btnRefresh.Click += (s, e) => RefreshGrids();
+            btnAdd.Click += (s, e) => OnAdd();
+            btnEdit.Click += (s, e) => MessageBox.Show("Edit performance not implemented yet.");
+            btnView.Click += (s, e) => MessageBox.Show("View performance not implemented yet.");
+            btnDelete.Click += (s, e) => MessageBox.Show("Delete performance not implemented yet.");
+        }
+
+        private void RefreshGrids()
+        {
+            dgvBatters.Rows.Clear();
+            dgvBowlers.Rows.Clear();
+            // no data loading here; placeholder to avoid design-time/db deps
+        }
+
+        private void OnAdd()
+        {
+            try
+            {
+                using var form = new App.WindowsApp.Forms.PerformanceForm();
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    // read entered values and add to grids
+                    var playerId = form.GetPlayerId();
+                    var playerName = form.GetPlayerName();
+                    var teamText = form.GetTeamText();
+
+                    var runs = form.GetRuns();
+                    var fours = form.GetFours();
+                    var sixes = form.GetSixes();
+
+                    var wickets = form.GetWickets();
+                    var overs = form.GetOvers();
+
+                    // add batter row if batting info present
+                    if (!string.IsNullOrWhiteSpace(playerId) && (runs > 0 || fours > 0 || sixes > 0))
+                    {
+                        dgvBatters.Rows.Add(playerId, playerName, teamText, runs, fours, sixes);
+                    }
+
+                    // add bowler row if bowling info present
+                    if (!string.IsNullOrWhiteSpace(playerId) && (wickets > 0 || !string.IsNullOrWhiteSpace(overs)))
+                    {
+                        dgvBowlers.Rows.Add(playerId, playerName, teamText, wickets, overs);
+                    }
+                }
+                else
+                {
+                    // cancelled - nothing to do
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to open performance form: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+    }
+}

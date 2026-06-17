@@ -1,0 +1,214 @@
+﻿namespace App.WindowsApp.Forms
+{
+    partial class MatchForm
+    {
+        private System.ComponentModel.IContainer components = null;
+
+        private Label lblTitle;
+
+        private Label lblMatchId;
+        private Label lblTeamA;
+        private Label lblTeamB;
+        private Label lblMatchDate;
+        private Label lblMatchTime;
+        private Label lblGround;
+        private Label lblWinner;
+
+        private TextBox txtMatchId;
+
+        private ComboBox cmbTeamA;
+        private ComboBox cmbTeamB;
+
+        private DateTimePicker dtpMatchDate;
+        private DateTimePicker dtpMatchTime;
+
+        private TextBox txtGround;
+
+        private TextBox txtWinner;
+
+        private Button btnSave;
+        private Button btnCancel;
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+                components.Dispose();
+
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        private void InitializeComponent()
+        {
+            lblTitle = new Label();
+
+            lblMatchId = new Label();
+            lblTeamA = new Label();
+            lblTeamB = new Label();
+            lblMatchDate = new Label();
+            lblMatchTime = new Label();
+            lblGround = new Label();
+            lblWinner = new Label();
+
+            txtMatchId = new TextBox();
+            cmbTeamA = new ComboBox();
+            cmbTeamB = new ComboBox();
+
+            dtpMatchDate = new DateTimePicker();
+            dtpMatchTime = new DateTimePicker();
+
+            txtGround = new TextBox();
+            txtWinner = new TextBox();
+
+            btnSave = new Button();
+            btnCancel = new Button();
+
+            SuspendLayout();
+
+            // 
+            // MatchForm
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(450, 320);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "Schedule Match";
+
+            // 
+            // lblTitle
+            // 
+            lblTitle.AutoSize = true;
+            lblTitle.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+            lblTitle.Location = new Point(20, 15);
+            lblTitle.Text = "Schedule Match";
+
+            // 
+            // lblMatchId
+            // 
+            lblMatchId.AutoSize = true;
+            lblMatchId.Location = new Point(20, 70);
+            lblMatchId.Text = "Match ID";
+
+            // 
+            // txtMatchId
+            // 
+            txtMatchId.Location = new Point(160, 67);
+            txtMatchId.Size = new Size(240, 23);
+
+            // 
+            // lblTeamA
+            // 
+            lblTeamA.AutoSize = true;
+            lblTeamA.Location = new Point(20, 105);
+            lblTeamA.Text = "Team A";
+
+            // 
+            // cmbTeamA
+            // 
+            cmbTeamA.Location = new Point(160, 102);
+            cmbTeamA.Size = new Size(240, 23);
+            cmbTeamA.DropDownStyle = ComboBoxStyle.DropDownList;
+
+            // 
+            // lblTeamB
+            // 
+            lblTeamB.AutoSize = true;
+            lblTeamB.Location = new Point(20, 140);
+            lblTeamB.Text = "Team B";
+
+            // 
+            // cmbTeamB
+            // 
+            cmbTeamB.Location = new Point(160, 137);
+            cmbTeamB.Size = new Size(240, 23);
+            cmbTeamB.DropDownStyle = ComboBoxStyle.DropDownList;
+
+            // 
+            // lblMatchDate
+            // 
+            lblMatchDate.AutoSize = true;
+            lblMatchDate.Location = new Point(20, 175);
+            lblMatchDate.Text = "Match Date";
+
+            // 
+            // dtpMatchDate
+            // 
+            dtpMatchDate.Location = new Point(160, 172);
+            dtpMatchDate.Size = new Size(240, 23);
+            dtpMatchDate.Format = DateTimePickerFormat.Short;
+
+            // 
+
+            // removed match time and ground UI elements
+
+            // 
+            // lblWinner
+            // 
+            lblWinner.AutoSize = true;
+            lblWinner.Location = new Point(20, 175);
+            lblWinner.Text = "Winner Team";
+
+            // 
+            // txtWinner
+            // 
+            txtWinner.Location = new Point(160, 172);
+            txtWinner.Size = new Size(240, 23);
+            txtWinner.Text = "Pending";
+            txtWinner.ReadOnly = true;
+
+            // 
+            // btnSave
+            // 
+            btnSave.Location = new Point(160, 230);
+            btnSave.Size = new Size(110, 35);
+            btnSave.Text = "Save";
+            btnSave.UseVisualStyleBackColor = true;
+
+            // 
+            // btnCancel
+            // 
+            btnCancel.Location = new Point(290, 230);
+            btnCancel.Size = new Size(110, 35);
+            btnCancel.Text = "Cancel";
+            btnCancel.UseVisualStyleBackColor = true;
+            btnCancel.Click += (s, e) => this.Close();
+
+            // 
+            // Controls
+            // 
+            Controls.Add(lblTitle);
+
+            Controls.Add(lblMatchId);
+            Controls.Add(txtMatchId);
+
+            Controls.Add(lblTeamA);
+            Controls.Add(cmbTeamA);
+
+            Controls.Add(lblTeamB);
+            Controls.Add(cmbTeamB);
+
+            Controls.Add(lblMatchDate);
+            Controls.Add(dtpMatchDate);
+
+            Controls.Add(lblMatchTime);
+            Controls.Add(dtpMatchTime);
+
+            Controls.Add(lblGround);
+            Controls.Add(txtGround);
+
+            Controls.Add(lblWinner);
+            Controls.Add(txtWinner);
+
+            Controls.Add(btnSave);
+            Controls.Add(btnCancel);
+
+            ResumeLayout(false);
+            PerformLayout();
+        }
+
+        #endregion
+    }
+}

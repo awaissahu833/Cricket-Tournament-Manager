@@ -1,0 +1,170 @@
+﻿using System;
+using System.Windows.Forms;
+
+namespace App.WindowsApp.Views
+{
+    public partial class PerformanceView : UserControl
+    {
+        private readonly App.Core.Services.DbPerformanceService _dbPerfSvc;
+
+        public PerformanceView()
+        {
+            InitializeComponent();
+            if (AppConfig.DbPerformanceService == null)
+            {
+                AppConfig.DbPerformanceService = new App.Core.Services.DbPerformanceService(AppConfig.ConnectionString);
+            }
+            _dbPerfSvc = AppConfig.DbPerformanceService;
+            WireEvents();
+        }
+
+        private void WireEvents()
+        {
+            btnRefresh.Click += (s, e) => RefreshGrids();
+            btnAdd.Click += (s, e) => OnAdd();
+            btnEdit.Click += (s, e) => OnEdit();
+            btnView.Click += (s, e) => OnView();
+            btnDelete.Click += (s, e) => OnDelete();
+        }
+
+        private void RefreshGrids()
+        {
+            dgvBatters.Rows.Clear();
+            dgvBowlers.Rows.Clear();
+
+            try
+            {
+                var list = _dbPerfSvc?.GetAll() ?? new System.Collections.Generic.List<App.Core.Models.Performance>();
+                foreach (var p in list)
+                {
+                    if (p.Runs > 0)
+                    {
+                        var idx = dgvBatters.Rows.Add(p.PlayerId, p.PlayerName, p.TeamName, p.Runs, p.Fours, p.Sixes);
+                        dgvBatters.Rows[idx].Tag = p.PerformanceId;
+                    }
+
+                    if (p.Wickets > 0 || !string.IsNullOrWhiteSpace(p.Overs))
+                    {
+                        var idx2 = dgvBowlers.Rows.Add(p.PlayerId, p.PlayerName, p.TeamName, p.Wickets, p.Overs);
+                        dgvBowlers.Rows[idx2].Tag = p.PerformanceId;
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private void OnAdd()
+        {
+            try
+            {
+                using var form = new App.WindowsApp.Forms.PerformanceForm();
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    // read entered values and add to grids
+                    var playerId = form.GetPlayerId();
+                    var playerName = form.GetPlayerName();
+                    var teamText = form.GetTeamText();
+
+                    var runs = form.GetRuns();
+                    var fours = form.GetFours();
+                    var sixes = form.GetSixes();
+
+                    var wickets = form.GetWickets();
+                    var overs = form.GetOvers();
+
+                    // add to in-memory service
+                    var perf = new App.Core.Models.Performance
+                    {
+                        PerformanceId = Guid.NewGuid().ToString("N"),
+                        PlayerId = playerId,
+                        PlayerName = playerName,
+                        TeamName = teamText,
+                        Runs = runs,
+                        Fours = fours,
+                        Sixes = sixes,
+                        Wickets = wickets,
+                        Overs = overs
+                    };
+
+                    try
+                    {
+                        _dbPerfSvc?.Add(perf);
+                    }
+                    catch { }
+
+                    RefreshGrids();
+                }
+                else
+                {
+                    // cancelled - nothing to do
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to open performance form: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private string GetSelectedPerformanceId()
+        {
+            if (dgvBatters.SelectedRows.Count > 0)
+                return dgvBatters.SelectedRows[0].Tag?.ToString();
+            if (dgvBowlers.SelectedRows.Count > 0)
+                return dgvBowlers.SelectedRows[0].Tag?.ToString();
+            return null;
+        }
+
+        private void OnView()
+        {
+            var id = GetSelectedPerformanceId();
+            if (string.IsNullOrWhiteSpace(id)) { MessageBox.Show("Select a performance to view."); return; }
+            App.Core.Models.Performance p = null;
+            try { p = _dbPerfSvc?.GetAll()?.Find(x => x.PerformanceId == id); } catch { }
+            if (p == null) { MessageBox.Show("Performance not found."); return; }
+
+            using var form = new App.WindowsApp.Forms.PerformanceForm();
+            form.SetPerformance(p);
+            form.DisableEditing();
+            form.ShowDialog();
+        }
+
+        private void OnEdit()
+        {
+            var id = GetSelectedPerformanceId();
+            if (string.IsNullOrWhiteSpace(id)) { MessageBox.Show("Select a performance to edit."); return; }
+            App.Core.Models.Performance p = null;
+            try { p = _dbPerfSvc?.GetAll()?.Find(x => x.PerformanceId == id); } catch { }
+            if (p == null) p = _perfSvc.GetAll().Find(x => x.PerformanceId == id);
+            if (p == null) { MessageBox.Show("Performance not found."); return; }
+
+            using var form = new App.WindowsApp.Forms.PerformanceForm();
+            form.SetPerformance(p);
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                // read updated values
+                p.PlayerId = form.GetPlayerId();
+                p.PlayerName = form.GetPlayerName();
+                p.TeamName = form.GetTeamText();
+                p.Runs = form.GetRuns();
+                p.Fours = form.GetFours();
+                p.Sixes = form.GetSixes();
+                p.Wickets = form.GetWickets();
+                p.Overs = form.GetOvers();
+
+                try { _dbPerfSvc?.Update(p); } catch { }
+                RefreshGrids();
+            }
+        }
+
+        private void OnDelete()
+        {
+            var id = GetSelectedPerformanceId();
+            if (string.IsNullOrWhiteSpace(id)) { MessageBox.Show("Select a performance to delete."); return; }
+            if (MessageBox.Show("Delete selected performance?","Confirm", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                try { _dbPerfSvc?.Delete(id); } catch { }
+                RefreshGrids();
+            }
+        }
+    }
+}

@@ -1,0 +1,20 @@
+using System;
+
+namespace App.Core.Models
+{
+    public class Performance
+    {
+        public string PerformanceId { get; set; }
+        public string PlayerId { get; set; }
+        public string PlayerName { get; set; }
+        public string TeamName { get; set; }
+
+        public int Runs { get; set; }
+        public int Fours { get; set; }
+        public int Sixes { get; set; }
+
+        public int Wickets { get; set; }
+        public string Overs { get; set; }
+
+    }
+}

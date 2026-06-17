@@ -1,0 +1,79 @@
+﻿using System;
+using System.Windows.Forms;
+using App.Core.Services;
+
+namespace App.WindowsApp.Views
+{
+    public partial class DashboardView : UserControl
+    {
+        private readonly DbTeamService _teamService;
+        private readonly DbPlayerService _playerService;
+
+        public DashboardView()
+        {
+            InitializeComponent();
+            _teamService = new DbTeamService(AppConfig.ConnectionString);
+            _playerService = new DbPlayerService(AppConfig.ConnectionString);
+            RefreshData();
+        }
+
+        public void RefreshData()
+        {
+            try
+            {
+                var teams = _teamService.GetAll();
+                SetLabelText("lblTeamsCount", teams?.Count.ToString() ?? "0");
+
+                var players = _playerService.GetAll();
+                SetLabelText("lblPlayersCount", players?.Count.ToString() ?? "0");
+
+                // top performers from in-memory service
+                try
+                {
+                    dgvTopBatters.Rows.Clear();
+                    dgvTopBowlers.Rows.Clear();
+
+                    if (AppConfig.DbPerformanceService != null)
+                    {
+                        var batters = AppConfig.DbPerformanceService.GetTopBatters(5);
+                        foreach (var b in batters)
+                            dgvTopBatters.Rows.Add(b.PlayerId, b.PlayerName, b.Runs, b.Fours, b.Sixes);
+
+                        var bowlers = AppConfig.DbPerformanceService.GetTopBowlers(5);
+                        foreach (var b in bowlers)
+                            dgvTopBowlers.Rows.Add(b.PlayerId, b.PlayerName, b.Wickets, b.Overs);
+                    }
+                    else if (AppConfig.PerformanceService != null)
+                    {
+                        var batters = AppConfig.PerformanceService.GetTopBatters(5);
+                        foreach (var b in batters)
+                            dgvTopBatters.Rows.Add(b.PlayerId, b.PlayerName, b.Runs, b.Fours, b.Sixes);
+
+                        var bowlers = AppConfig.PerformanceService.GetTopBowlers(5);
+                        foreach (var b in bowlers)
+                            dgvTopBowlers.Rows.Add(b.PlayerId, b.PlayerName, b.Wickets, b.Overs);
+                    }
+                }
+                catch { }
+            }
+            catch (Exception)
+            {
+                SetLabelText("lblTeamsCount", "0");
+                SetLabelText("lblPlayersCount", "0");
+            }
+        }
+
+        private void SetLabelText(string labelName, string text)
+        {
+            try
+            {
+                var ctrls = this.Controls.Find(labelName, true);
+                if (ctrls != null && ctrls.Length > 0 && ctrls[0] is Label lbl)
+                {
+                    lbl.Text = text;
+                }
+            }
+            catch { }
+        }
+    }
+}

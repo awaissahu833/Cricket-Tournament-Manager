@@ -1,0 +1,27 @@
+﻿using System;
+using System.IO;
+
+namespace App.WindowsApp
+{
+    internal static class AppConfig
+    {
+        private const string ConnFile = "connection.txt";
+
+        public static string ConnectionString
+        {
+            get
+            {
+                try
+                {
+                    string path = Path.Combine(AppContext.BaseDirectory, ConnFile);
+                    if (File.Exists(path))
+                        return File.ReadAllText(path).Trim();
+                }
+                catch { }
+
+                // fallback: localdb default (developer can override by creating connection.txt)
+                return "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=CricketDb;Integrated Security=True;";
+            }
+        }
+    }
+}

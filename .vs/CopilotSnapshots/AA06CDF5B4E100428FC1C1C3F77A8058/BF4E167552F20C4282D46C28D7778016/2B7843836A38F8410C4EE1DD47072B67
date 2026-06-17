@@ -1,0 +1,130 @@
+﻿using App.Core.Models;
+using App.Core.Services;
+using System;
+using System.Windows.Forms;
+
+namespace App.WindowsApp.Views
+{
+    public partial class MatchesView : UserControl
+    {
+        private readonly DbMatchService _service;
+
+        public MatchesView()
+        {
+            InitializeComponent();
+            _service = new DbMatchService(AppConfig.ConnectionString);
+            WireEvents();
+            RefreshGrid();
+        }
+
+        private void WireEvents()
+        {
+            btnAdd.Click += (s, e) => AddMatch();
+            btnEdit.Click += (s, e) => EditSelectedMatch();
+            btnView.Click += (s, e) => ViewSelectedMatch();
+            btnDelete.Click += (s, e) => DeleteSelectedMatch();
+            btnRefresh.Click += (s, e) => RefreshGrid();
+        }
+
+        private void RefreshGrid()
+        {
+            try
+            {
+                dgvMatches.Rows.Clear();
+                var matches = _service.GetAll();
+                foreach (var m in matches)
+                {
+                    dgvMatches.Rows.Add(m.MatchId, m.Team1Name, m.Team2Name, m.MatchDate.ToString("g"), m.Result);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load matches: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private string GetSelectedId()
+        {
+            if (dgvMatches.SelectedRows.Count == 0) return null;
+            return dgvMatches.SelectedRows[0].Cells[0].Value?.ToString();
+        }
+
+        private void AddMatch()
+        {
+            using var form = new App.WindowsApp.Forms.MatchForm();
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                var match = form.GetMatch();
+                if (string.IsNullOrWhiteSpace(match.MatchId))
+                    match.MatchId = Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
+
+                _service.Add(match);
+                RefreshGrid();
+            }
+        }
+
+        private void EditSelectedMatch()
+        {
+            var id = GetSelectedId();
+            if (id == null)
+            {
+                MessageBox.Show("Please select a match to edit.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var match = _service.GetById(id);
+            if (match == null)
+            {
+                MessageBox.Show("Match not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            using var form = new App.WindowsApp.Forms.MatchForm();
+            form.SetMatch(match);
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                var updated = form.GetMatch();
+                _service.Update(updated);
+                RefreshGrid();
+            }
+        }
+
+        private void ViewSelectedMatch()
+        {
+            var id = GetSelectedId();
+            if (id == null)
+            {
+                MessageBox.Show("Please select a match to view.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var match = _service.GetById(id);
+            if (match == null)
+            {
+                MessageBox.Show("Match not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            using var form = new App.WindowsApp.Forms.MatchForm();
+            form.SetMatch(match);
+            form.DisableEditing();
+            form.ShowDialog();
+        }
+
+        private void DeleteSelectedMatch()
+        {
+            var id = GetSelectedId();
+            if (id == null)
+            {
+                MessageBox.Show("Please select a match to delete.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (MessageBox.Show("Are you sure to delete selected match?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                _service.Delete(id);
+                RefreshGrid();
+            }
+        }
+    }
+}

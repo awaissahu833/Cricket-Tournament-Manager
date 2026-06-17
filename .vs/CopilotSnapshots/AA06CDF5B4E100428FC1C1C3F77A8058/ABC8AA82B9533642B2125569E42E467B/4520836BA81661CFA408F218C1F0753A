@@ -1,0 +1,151 @@
+﻿namespace App.WindowsApp.Views
+{
+    partial class TeamsView
+    {
+        private System.ComponentModel.IContainer components = null;
+
+        private Label lblTitle;
+        private Label lblSearch;
+
+        private TextBox txtSearch;
+
+        private Button btnAdd;
+        private Button btnEdit;
+        private Button btnView;
+        private Button btnDelete;
+        private Button btnRefresh;
+
+        private DataGridView dgvTeams;
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+                components.Dispose();
+
+            base.Dispose(disposing);
+        }
+
+        #region Component Designer generated code
+
+        private void InitializeComponent()
+        {
+            lblTitle = new Label();
+            lblSearch = new Label();
+
+            txtSearch = new TextBox();
+
+            btnAdd = new Button();
+            btnEdit = new Button();
+            btnView = new Button();
+            btnDelete = new Button();
+            btnRefresh = new Button();
+
+            dgvTeams = new DataGridView();
+
+            ((System.ComponentModel.ISupportInitialize)dgvTeams).BeginInit();
+            SuspendLayout();
+
+            //
+            // TeamsView
+            //
+            Name = "TeamsView";
+            Size = new Size(1200, 750);
+
+            //
+            // lblTitle
+            //
+            lblTitle.AutoSize = true;
+            lblTitle.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+            lblTitle.Location = new Point(20, 20);
+            lblTitle.Text = "Registered Teams";
+
+            //
+            // lblSearch
+            //
+            lblSearch.AutoSize = true;
+            lblSearch.Location = new Point(20, 75);
+            lblSearch.Text = "Search Team:";
+
+            //
+            // txtSearch
+            //
+            txtSearch.Location = new Point(120, 72);
+            txtSearch.Size = new Size(250, 23);
+
+            //
+            // btnAdd
+            //
+            btnAdd.Location = new Point(20, 120);
+            btnAdd.Size = new Size(90, 35);
+            btnAdd.Text = "Add Team";
+
+            //
+            // btnEdit
+            //
+            btnEdit.Location = new Point(120, 120);
+            btnEdit.Size = new Size(90, 35);
+            btnEdit.Text = "Edit";
+
+            //
+            // btnView
+            //
+            btnView.Location = new Point(220, 120);
+            btnView.Size = new Size(90, 35);
+            btnView.Text = "View";
+
+            //
+            // btnDelete
+            //
+            btnDelete.Location = new Point(320, 120);
+            btnDelete.Size = new Size(90, 35);
+            btnDelete.Text = "Delete";
+
+            //
+            // btnRefresh
+            //
+            btnRefresh.Location = new Point(420, 120);
+            btnRefresh.Size = new Size(90, 35);
+            btnRefresh.Text = "Refresh";
+
+            //
+            // dgvTeams
+            //
+            dgvTeams.AllowUserToAddRows = false;
+            dgvTeams.AllowUserToDeleteRows = false;
+            dgvTeams.AutoSizeColumnsMode =
+                DataGridViewAutoSizeColumnsMode.Fill;
+            dgvTeams.Location = new Point(20, 180);
+            dgvTeams.MultiSelect = false;
+            dgvTeams.ReadOnly = true;
+            dgvTeams.SelectionMode =
+                DataGridViewSelectionMode.FullRowSelect;
+            dgvTeams.Size = new Size(1130, 520);
+
+            dgvTeams.Columns.Add("TeamID", "Team ID");
+            dgvTeams.Columns.Add("TeamName", "Team Name");
+            dgvTeams.Columns.Add("CaptainName", "Captain");
+            dgvTeams.Columns.Add("EntryFee", "Entry Fee");
+
+            //
+            // Controls
+            //
+            Controls.Add(lblTitle);
+            Controls.Add(lblSearch);
+            Controls.Add(txtSearch);
+
+            Controls.Add(btnAdd);
+            Controls.Add(btnEdit);
+            Controls.Add(btnView);
+            Controls.Add(btnDelete);
+            Controls.Add(btnRefresh);
+
+            Controls.Add(dgvTeams);
+
+            ((System.ComponentModel.ISupportInitialize)dgvTeams).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
+        }
+
+        #endregion
+    }
+}

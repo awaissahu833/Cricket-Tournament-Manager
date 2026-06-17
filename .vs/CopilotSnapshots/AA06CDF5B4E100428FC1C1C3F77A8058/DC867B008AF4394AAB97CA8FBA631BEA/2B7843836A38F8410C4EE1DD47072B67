@@ -1,0 +1,13 @@
+﻿using System.Windows.Forms;
+using System.Drawing;
+
+namespace App.WindowsApp.Views
+{
+    public partial class MatchesView : UserControl
+    {
+        public MatchesView()
+        {
+            InitializeComponent();
+        }
+    }
+}

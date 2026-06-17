@@ -1,0 +1,54 @@
+﻿using App.Core.Services;
+using System;
+using System.Windows.Forms;
+
+namespace App.WindowsApp.Views
+{
+    public partial class PerformanceView : UserControl
+    {
+        private readonly DbPlayerService _playerService;
+
+        public PerformanceView()
+        {
+            InitializeComponent();
+            _playerService = new DbPlayerService(AppConfig.ConnectionString);
+            WireEvents();
+            RefreshGrids();
+        }
+
+        private void WireEvents()
+        {
+            btnRefresh.Click += (s, e) => RefreshGrids();
+            btnAdd.Click += (s, e) => MessageBox.Show("Add performance not implemented yet.");
+            btnEdit.Click += (s, e) => MessageBox.Show("Edit performance not implemented yet.");
+            btnView.Click += (s, e) => MessageBox.Show("View performance not implemented yet.");
+            btnDelete.Click += (s, e) => MessageBox.Show("Delete performance not implemented yet.");
+        }
+
+        private void RefreshGrids()
+        {
+            try
+            {
+                dgvBatters.Rows.Clear();
+                dgvBowlers.Rows.Clear();
+                var players = _playerService.GetAll();
+                foreach (var p in players)
+                {
+                    // simple split: batters vs bowlers
+                    if (p.Role == App.Core.Utilities.PlayerRoleEnum.Batsman || p.Role == App.Core.Utilities.PlayerRoleEnum.AllRounder)
+                    {
+                        dgvBatters.Rows.Add(p.PlayerId, p.Name, p.TeamId, 0, 0, 0);
+                    }
+                    if (p.Role == App.Core.Utilities.PlayerRoleEnum.Bowler || p.Role == App.Core.Utilities.PlayerRoleEnum.AllRounder)
+                    {
+                        dgvBowlers.Rows.Add(p.PlayerId, p.Name, p.TeamId, 0, 0);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load performances: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+    }
+}

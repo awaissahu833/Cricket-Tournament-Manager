@@ -1,0 +1,106 @@
+﻿using System;
+using System.Windows.Forms;
+using App.Core.Models;
+using App.Core.Services;
+using App.Core.Utilities;
+
+namespace App.WindowsApp.Forms
+{
+    public partial class MatchForm : Form
+    {
+        public MatchForm()
+        {
+            InitializeComponent();
+            txtMatchId.Text = Guid.NewGuid().ToString("N");
+            txtMatchId.ReadOnly = true;
+            btnSave.Click += (s, e) => OnSave();
+            btnCancel.Click += (s, e) => OnCancel();
+            AcceptButton = btnSave;
+            CancelButton = btnCancel;
+            LoadTeams();
+        }
+
+        private void OnCancel()
+        {
+            DialogResult = DialogResult.Cancel;
+            Close();
+        }
+
+        private void LoadTeams()
+        {
+            try
+            {
+                var svc = new DbTeamService(AppConfig.ConnectionString);
+                var teams = svc.GetAll();
+                cmbTeamA.DisplayMember = "Name";
+                cmbTeamA.ValueMember = "TeamId";
+                cmbTeamA.DataSource = teams;
+
+                cmbTeamB.DisplayMember = "Name";
+                cmbTeamB.ValueMember = "TeamId";
+                cmbTeamB.DataSource = new System.Collections.Generic.List<Team>(teams);
+            }
+            catch
+            {
+                // Validation will catch missing teams.
+            }
+        }
+
+        private void OnSave()
+        {
+            var teamA = cmbTeamA.SelectedValue?.ToString();
+            var teamB = cmbTeamB.SelectedValue?.ToString();
+            if (string.IsNullOrWhiteSpace(teamA))
+            {
+                MessageBox.Show("Please select Team A.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(teamB))
+            {
+                MessageBox.Show("Please select Team B.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (teamA == teamB)
+            {
+                MessageBox.Show("Team A and Team B must be different.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            DialogResult = DialogResult.OK;
+            Close();
+        }
+
+        public Match GetMatch()
+        {
+            return new Match
+            {
+                MatchId = txtMatchId.Text.Trim(),
+                Team1Id = cmbTeamA.SelectedValue?.ToString() ?? cmbTeamA.Text,
+                Team2Id = cmbTeamB.SelectedValue?.ToString() ?? cmbTeamB.Text,
+                MatchDate = DateTime.Now.Date,
+                Status = MatchStatusEnum.Scheduled,
+                Result = string.Empty
+            };
+        }
+
+        public void SetMatch(Match m)
+        {
+            if (m == null) return;
+
+            txtMatchId.Text = m.MatchId;
+            txtMatchId.ReadOnly = true;
+            try { cmbTeamA.SelectedValue = m.Team1Id; } catch { cmbTeamA.Text = m.Team1Id; }
+            try { cmbTeamB.SelectedValue = m.Team2Id; } catch { cmbTeamB.Text = m.Team2Id; }
+        }
+
+        public void DisableEditing()
+        {
+            txtMatchId.ReadOnly = true;
+            cmbTeamA.Enabled = false;
+            cmbTeamB.Enabled = false;
+            btnSave.Visible = false;
+        }
+    }
+}

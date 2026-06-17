@@ -1,0 +1,47 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Text;
+using System.Windows.Forms;
+
+namespace App.WindowsApp.Forms
+{
+    public partial class PerformanceForm : Form
+    {
+        public PerformanceForm()
+        {
+            InitializeComponent();
+            try
+            {
+                var matchSvc = new App.Core.Services.DbMatchService(AppConfig.ConnectionString);
+                var teamSvc = new App.Core.Services.DbTeamService(AppConfig.ConnectionString);
+
+                var matches = matchSvc.GetAll();
+                var teams = teamSvc.GetAll();
+
+                if (cmbMatch != null)
+                {
+                    cmbMatch.DisplayMember = "MatchDate"; // will show date by default
+                    cmbMatch.ValueMember = "MatchId";
+                    cmbMatch.DataSource = matches;
+                    cmbMatch.SelectedIndexChanged += (s, e) => {
+                        // placeholder: refresh dependent controls when match changes
+                    };
+                }
+
+                if (cmbTeam != null)
+                {
+                    cmbTeam.DisplayMember = "Name";
+                    cmbTeam.ValueMember = "TeamId";
+                    cmbTeam.DataSource = teams;
+                    cmbTeam.SelectedIndexChanged += (s, e) => {
+                        // placeholder: refresh dependent controls when team changes
+                    };
+                }
+            }
+            catch { }
+        }
+    }
+}
